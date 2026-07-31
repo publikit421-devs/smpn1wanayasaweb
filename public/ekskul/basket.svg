@@ -1,0 +1,14 @@
+<svg width="800" height="500" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7C2D12"/>
+      <stop offset="1" stop-color="#EA580C"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <rect x="40" y="40" width="720" height="420" rx="14" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="2"/>
+  <circle cx="400" cy="215" r="92" fill="#FFEDD5"/>
+  <path d="M400 123 A92 92 0 1 1 308 215 L400 215 Z" fill="#EA580C"/>
+  <path d="M380 170 L420 170 L400 245 Z" fill="#C2410C"/>
+  <text x="400" y="400" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="16" font-weight="700">BASKET</text>
+</svg>

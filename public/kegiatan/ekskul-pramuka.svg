@@ -1,0 +1,32 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9F1239"/>
+      <stop offset="0.5" stop-color="#E11D48"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) rotate(60) scale(520)">
+      <stop stop-color="#FDA4AF" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#FDA4AF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+  <g transform="translate(640 300)">
+    <circle cx="-90" cy="0" r="105" fill="#FFF1F2"/>
+    <circle cx="-90" cy="0" r="80" fill="#FECDD3"/>
+    <circle cx="-90" cy="0" r="55" fill="#FB7185"/>
+    <circle cx="-90" cy="0" r="30" fill="#FFFFFF"/>
+    <rect x="180" y="-130" width="80" height="80" rx="14" fill="#FFFFFF" fill-opacity="0.92" transform="rotate(8 220 -90)"/>
+    <rect x="180" y="-130" width="80" height="80" rx="14" fill="#FECDD3" transform="rotate(8 220 -90)"/>
+    <path d="M195 -100 L245 -100 L245 -90 L225 -70 L215 -70 L195 -90 Z" fill="#E11D48"/>
+    <rect x="130" y="40" width="120" height="70" rx="12" fill="#FFFFFF" fill-opacity="0.9"/>
+    <text x="140" y="68" fill="#9F1239" font-family="Arial, sans-serif" font-size="16" font-weight="700">Ekskul</text>
+    <text x="140" y="90" fill="#E11D48" font-family="Arial, sans-serif" font-size="14">Pramuka</text>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="160" cy="120" r="46" fill-opacity="0.10"/>
+    <circle cx="1140" cy="560" r="58" fill-opacity="0.10"/>
+  </g>
+  <text x="640" y="640" text-anchor="middle" fill="#FFFFFF" fill-opacity="0.85" font-family="Arial, sans-serif" font-size="34" font-weight="600" letter-spacing="6">EKSTRAKURIKULER PRAMUKA</text>
+</svg>

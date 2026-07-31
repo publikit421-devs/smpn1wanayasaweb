@@ -1,0 +1,14 @@
+<svg width="800" height="500" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#831843"/>
+      <stop offset="1" stop-color="#DB2777"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <rect x="40" y="40" width="720" height="420" rx="14" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="2"/>
+  <circle cx="400" cy="210" r="80" fill="#FDF2F8"/>
+  <path d="M400 130 C455 155 455 265 400 290 C345 265 345 155 400 130 Z" fill="#DB2777"/>
+  <path d="M400 210 L445 150 M400 210 L355 150 M400 210 L445 270 M400 210 L355 270" stroke="#DB2777" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <text x="400" y="410" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="16" font-weight="700">TARI TRADISIONAL</text>
+</svg>

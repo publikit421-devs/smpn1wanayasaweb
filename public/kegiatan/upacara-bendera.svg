@@ -1,0 +1,39 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C4A6E"/>
+      <stop offset="0.5" stop-color="#0369A1"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 80) rotate(60) scale(520)">
+      <stop stop-color="#7DD3FC" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#7DD3FC" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+  <g opacity="0.08">
+    <rect x="0" y="0" width="40" height="40" fill="none" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="40" y="0" width="40" height="40" fill="none" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="80" y="0" width="40" height="40" fill="none" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="120" y="0" width="40" height="40" fill="none" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="160" y="0" width="40" height="40" fill="none" stroke="#FFFFFF" stroke-width="1"/>
+  </g>
+  <g transform="translate(640 280)">
+    <rect x="-40" y="-280" width="80" height="80" rx="6" fill="#FFFFFF" fill-opacity="0.95"/>
+    <path d="M0 -250V0" stroke="#0C4A6E" stroke-width="10" stroke-linecap="round"/>
+    <rect x="-40" y="-280" width="80" height="80" rx="6" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+    <circle cx="0" cy="-40" r="34" fill="#0EA5E9"/>
+    <circle cx="0" cy="-40" r="22" fill="#FFFFFF"/>
+    <circle cx="0" cy="-40" r="12" fill="#0EA5E9"/>
+    <rect x="-200" y="80" width="400" height="90" rx="10" fill="#FFFFFF" fill-opacity="0.14"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="180" cy="560" r="70" fill-opacity="0.12"/>
+    <circle cx="180" cy="560" r="44" fill-opacity="0.12"/>
+    <circle cx="1120" cy="520" r="56" fill-opacity="0.10"/>
+    <rect x="60" y="70" width="30" height="30" rx="6" fill-opacity="0.2"/>
+    <rect x="1210" y="140" width="22" height="22" rx="6" fill-opacity="0.18"/>
+  </g>
+  <text x="640" y="620" text-anchor="middle" fill="#FFFFFF" fill-opacity="0.85" font-family="Arial, sans-serif" font-size="34" font-weight="600" letter-spacing="6">UPACARA BENDERA</text>
+</svg>

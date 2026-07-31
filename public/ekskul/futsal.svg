@@ -1,0 +1,16 @@
+<svg width="800" height="500" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14532D"/>
+      <stop offset="1" stop-color="#16A34A"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <rect x="40" y="40" width="720" height="420" rx="14" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="2"/>
+  <circle cx="400" cy="190" r="90" fill="#F0FDF4"/>
+  <rect x="340" y="300" width="120" height="34" rx="6" fill="#FFFFFF"/>
+  <rect x="340" y="334" width="120" height="34" rx="6" fill="#FFFFFF"/>
+  <circle cx="400" cy="352" r="26" fill="#16A34A"/>
+  <path d="M400 334 L400 370 M383 352 L417 352" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  <text x="400" y="420" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="16" font-weight="700">FUTSAL</text>
+</svg>

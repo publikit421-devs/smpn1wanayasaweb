@@ -1,0 +1,32 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#78350F"/>
+      <stop offset="0.5" stop-color="#D97706"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 620) rotate(60) scale(520)">
+      <stop stop-color="#FDE68A" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#FDE68A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+  <ellipse cx="640" cy="600" rx="460" ry="60" fill="#FDE68A" fill-opacity="0.35"/>
+  <g transform="translate(640 330)">
+    <circle cx="-150" cy="-70" r="42" fill="#FFEDD5" stroke="#78350F" stroke-width="6"/>
+    <rect x="-196" y="60" width="92" height="130" rx="40" fill="#FFFFFF" stroke="#78350F" stroke-width="6"/>
+    <rect x="-150" y="-30" width="200" height="55" rx="27.5" fill="#FCA5A5" stroke="#78350F" stroke-width="6"/>
+    <circle cx="130" cy="-70" r="42" fill="#FFEDD5" stroke="#78350F" stroke-width="6"/>
+    <rect x="84" y="60" width="92" height="130" rx="40" fill="#FFFFFF" stroke="#78350F" stroke-width="6"/>
+    <circle cx="-150" cy="-70" r="16" fill="#0C4A6E"/>
+    <circle cx="130" cy="-70" r="16" fill="#0C4A6E"/>
+    <circle cx="40" cy="70" r="48" fill="#FDE68A"/>
+    <circle cx="40" cy="70" r="36" fill="#F59E0B" stroke="#78350F" stroke-width="5"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="180" cy="140" r="50" fill-opacity="0.10"/>
+    <circle cx="1120" cy="520" r="62" fill-opacity="0.12"/>
+  </g>
+  <text x="640" y="640" text-anchor="middle" fill="#FFFFFF" fill-opacity="0.85" font-family="Arial, sans-serif" font-size="34" font-weight="600" letter-spacing="6">OLAHRAGA &amp; PESTA SENI</text>
+</svg>
