@@ -12,7 +12,7 @@ const serviceRoleKey =
 export function createAdminClient() {
   if (!serviceRoleKey) {
     throw new Error(
-      'SUPABASE_SERVICE_ROLE_KEY belum diatur di environment. Tambahkan ke .env.local dan Vercel.'
+      'Service role key belum terdeteksi. Set SUPABASE_SERVICE_ROLE_KEYS (atau SUPABASE_SERVICE_ROLE_KEY) di .env.local lalu restart dev server, dan di Vercel Environment Variables + Redeploy.'
     )
   }
 
