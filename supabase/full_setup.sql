@@ -803,6 +803,18 @@ where not exists (
   where category = 'ekstrakurikuler' and title = 'PMR'
 );
 
+-- Kolom slug pada public.kegiatan (untuk link detail ekstrakurikuler)
+alter table public.kegiatan add column if not exists slug text;
+
+update public.kegiatan
+set slug = lower(
+  regexp_replace(
+    regexp_replace(trim(title), '\s+', '-', 'g'),
+    '[^a-z0-9-]', '', 'g'
+  )
+)
+where slug is null;
+
 -- ============================================================
 -- Ekstrakurikuler Full Schema (tabel terpisah: extracurriculars, schedules, committees, galleries)
 -- ============================================================

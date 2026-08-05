@@ -222,6 +222,15 @@ const p5Items: P5Item[] = [
   },
 ]
 
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
+
 function initials(name: string) {
   return name
     .replace(/\b(Kak\.|Bpk\.|Ibu)\b\.?\s?/g, '')
@@ -236,6 +245,19 @@ function initials(name: string) {
 export default function KegiatanTabs() {
   const [active, setActive] = React.useState<TabId>('intrakurikuler')
   const [ekskul, setEkskul] = React.useState<EkskulItem[]>(fallbackEkskul)
+  const [detailSlugs, setDetailSlugs] = React.useState<Set<string>>(new Set())
+
+  React.useEffect(() => {
+    supabase
+      .from('extracurriculars')
+      .select('slug')
+      .eq('is_active', true)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setDetailSlugs(new Set(data.map((d) => d.slug)))
+        }
+      })
+  }, [])
 
   React.useEffect(() => {
     supabase
@@ -254,7 +276,7 @@ export default function KegiatanTabs() {
                 image: k.image_url || fb?.image || '/kegiatan/ekskul-pramuka.svg',
                 desc: k.description ?? fb?.desc ?? '',
                 pembina: k.pembina ?? fb?.pembina ?? '',
-                slug: k.slug ?? undefined,
+                slug: k.slug ?? slugify(k.title ?? ''),
               }
             })
           )
@@ -364,60 +386,71 @@ export default function KegiatanTabs() {
 
               {active === 'ekstrakurikuler' && (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {(ekskul || []).map((item, i) => (
-                    <Link
-                      key={`${item.name}-${i}`}
-                      href={item.slug ? `/ekstrakurikuler/${item.slug}` : '#'}
-                      className={cn(
-                        'block group overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm',
-                        item.slug
-                          ? 'cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-300'
-                          : 'cursor-default',
-                      )}
-                      onClick={item.slug ? undefined : (e) => e.preventDefault()}
-                    >
-                      <div className="relative aspect-[16/10] w-full overflow-hidden">
-                        <Image
-                          src={item.image}
-                          alt={`Kegiatan ekstrakurikuler ${item.name}`}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                        <Badge className="absolute left-3 top-3 bg-white/90 text-slate-800 backdrop-blur-sm">
-                          <Trophy className="h-3 w-3" />
-                          Ekstrakurikuler
-                        </Badge>
-                      </div>
-                      <div className="px-5 py-4">
-                        <h3 className="text-base font-bold text-slate-800">{item.name}</h3>
-                        {item.desc && (
-                          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-slate-500">{item.desc}</p>
+                  {(ekskul || []).map((item, i) => {
+                    const hasDetail = Boolean(item.slug && detailSlugs.has(item.slug))
+                    const card = (
+                      <div
+                        className={cn(
+                          'group overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm',
+                          hasDetail
+                            ? 'transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-300'
+                            : 'cursor-default',
                         )}
-                        {item.pembina && (
-                          <div className="mt-3 flex items-center gap-3 border-t border-slate-100 pt-3">
-                            <Avatar size="default" className="h-8 w-8">
-                              <AvatarFallback
-                                className={cn(
-                                  'bg-gradient-to-br text-[11px] font-bold text-white',
-                                  ekskulGradients[i % ekskulGradients.length]
-                                )}
-                              >
-                                {initials(item.pembina)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0">
-                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                Pembina
-                              </p>
-                              <p className="truncate text-sm font-semibold text-slate-700">{item.pembina}</p>
+                      >
+                        <div className="relative aspect-[16/10] w-full overflow-hidden">
+                          <Image
+                            src={item.image}
+                            alt={`Kegiatan ekstrakurikuler ${item.name}`}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                          <Badge className="absolute left-3 top-3 bg-white/90 text-slate-800 backdrop-blur-sm">
+                            <Trophy className="h-3 w-3" />
+                            Ekstrakurikuler
+                          </Badge>
+                        </div>
+                        <div className="px-5 py-4">
+                          <h3 className="text-base font-bold text-slate-800">{item.name}</h3>
+                          {item.desc && (
+                            <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-slate-500">{item.desc}</p>
+                          )}
+                          {item.pembina && (
+                            <div className="mt-3 flex items-center gap-3 border-t border-slate-100 pt-3">
+                              <Avatar size="default" className="h-8 w-8">
+                                <AvatarFallback
+                                  className={cn(
+                                    'bg-gradient-to-br text-[11px] font-bold text-white',
+                                    ekskulGradients[i % ekskulGradients.length]
+                                  )}
+                                >
+                                  {initials(item.pembina)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                  Pembina
+                                </p>
+                                <p className="truncate text-sm font-semibold text-slate-700">{item.pembina}</p>
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
-                    </Link>
-                  ))}
+                    )
+                    return hasDetail ? (
+                      <Link
+                        key={`${item.name}-${i}`}
+                        href={`/ekstrakurikuler/${item.slug}`}
+                        className="block"
+                      >
+                        {card}
+                      </Link>
+                    ) : (
+                      <div key={`${item.name}-${i}`}>{card}</div>
+                    )
+                  })}
                 </div>
               )}
 
