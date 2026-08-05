@@ -95,9 +95,9 @@ export async function listPembinaUsers(): Promise<
   // Profil (kolom role/full_name/ekskul_id) dari database
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, ekskul_id, role, created_at, updated_at')
+    .select('id, full_name, ekskul_id, role')
     .eq('role', 'pembina')
-    .order('created_at', { ascending: false })
+    .order('full_name', { ascending: true })
 
   if (error) return { success: false, error: error.message }
 
@@ -165,7 +165,7 @@ export async function updatePembinaEkskul(
 
   const { error } = await supabase
     .from('profiles')
-    .update({ ekskul_id: ekskulId || null, updated_at: new Date().toISOString() })
+    .update({ ekskul_id: ekskulId || null })
     .eq('id', userId)
 
   if (error) return { success: false, error: error.message }
