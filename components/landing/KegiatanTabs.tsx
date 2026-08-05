@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen,
@@ -82,6 +83,7 @@ interface EkskulItem {
   image: string
   desc: string
   pembina: string
+  slug?: string
 }
 
 const ekskulGradients = [
@@ -170,6 +172,7 @@ const fallbackEkskul: EkskulItem[] = [
     image: '/ekskul/pmr.svg',
     desc: 'Wadah pembinaan dan pengembangan anggota remaja PMR dalam bidang kemanusiaan, kesehatan, kesiapsiagaan bencana, dan pertolongan pertama di lingkungan sekolah maupun masyarakat.',
     pembina: 'Dani Ahmad Fauzi, S.Pd & Ela Nurlaelasari, S.Pd',
+    slug: 'pmr',
   },
 ]
 
@@ -251,6 +254,7 @@ export default function KegiatanTabs() {
                 image: k.image_url || fb?.image || '/kegiatan/ekskul-pramuka.svg',
                 desc: k.description ?? fb?.desc ?? '',
                 pembina: k.pembina ?? fb?.pembina ?? '',
+                slug: k.slug ?? undefined,
               }
             })
           )
@@ -360,10 +364,17 @@ export default function KegiatanTabs() {
 
               {active === 'ekstrakurikuler' && (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {ekskul.map((item, i) => (
-                    <Card
+                  {(ekskul || []).map((item, i) => (
+                    <Link
                       key={`${item.name}-${i}`}
-                      className="group overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
+                      href={item.slug ? `/ekstrakurikuler/${item.slug}` : '#'}
+                      className={cn(
+                        'block group overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm',
+                        item.slug
+                          ? 'cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-300'
+                          : 'cursor-default',
+                      )}
+                      onClick={item.slug ? undefined : (e) => e.preventDefault()}
                     >
                       <div className="relative aspect-[16/10] w-full overflow-hidden">
                         <Image
@@ -379,7 +390,7 @@ export default function KegiatanTabs() {
                           Ekstrakurikuler
                         </Badge>
                       </div>
-                      <CardContent className="px-5 py-4">
+                      <div className="px-5 py-4">
                         <h3 className="text-base font-bold text-slate-800">{item.name}</h3>
                         {item.desc && (
                           <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-slate-500">{item.desc}</p>
@@ -404,8 +415,8 @@ export default function KegiatanTabs() {
                             </div>
                           </div>
                         )}
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </Link>
                   ))}
                 </div>
               )}

@@ -101,6 +101,7 @@ export interface Kegiatan {
   image_url?: string
   pembina?: string
   urutan?: number
+  slug?: string
   tanggal?: string
   is_active: boolean
   created_at: string
@@ -153,6 +154,55 @@ export interface GalleryItem {
   caption?: string
   urutan?: number
   is_active: boolean
+  created_at: string
+}
+
+// ====== Ekstrakurikuler Types ======
+
+export interface Extracurricular {
+  id: string
+  slug: string
+  name: string
+  category: string
+  description?: string
+  instructors?: string
+  logo_url?: string
+  banner_url?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface EkskulSchedule {
+  id: string
+  ekskul_id: string
+  day: string
+  time: string
+  location?: string
+  notes?: string
+  order_index: number
+  created_at: string
+}
+
+export interface EkskulCommittee {
+  id: string
+  ekskul_id: string
+  position: string
+  student_name: string
+  class_name?: string
+  order_index: number
+  photo_url?: string
+  created_at: string
+}
+
+export interface EkskulGallery {
+  id: string
+  ekskul_id: string
+  title?: string
+  image_url: string
+  activity_date?: string
+  caption?: string
+  order_index: number
   created_at: string
 }
 
@@ -301,4 +351,62 @@ export async function updateProfile(
 
   if (error) throw error
   return data as UserProfile
+}
+
+// ====== Ekstrakurikuler Helpers ======
+
+export async function getExtracurriculars(): Promise<Extracurricular[]> {
+  const { data, error } = await supabase
+    .from('extracurriculars')
+    .select('*')
+    .eq('is_active', true)
+    .order('name', { ascending: true })
+
+  if (error) throw error
+  return data as Extracurricular[]
+}
+
+export async function getExtracurricularBySlug(slug: string): Promise<Extracurricular | null> {
+  const { data, error } = await supabase
+    .from('extracurriculars')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as Extracurricular | null
+}
+
+export async function getEkskulSchedules(ekskulId: string): Promise<EkskulSchedule[]> {
+  const { data, error } = await supabase
+    .from('ekskul_schedules')
+    .select('*')
+    .eq('ekskul_id', ekskulId)
+    .order('order_index', { ascending: true })
+
+  if (error) throw error
+  return data as EkskulSchedule[]
+}
+
+export async function getEkskulCommittees(ekskulId: string): Promise<EkskulCommittee[]> {
+  const { data, error } = await supabase
+    .from('ekskul_committees')
+    .select('*')
+    .eq('ekskul_id', ekskulId)
+    .order('order_index', { ascending: true })
+
+  if (error) throw error
+  return data as EkskulCommittee[]
+}
+
+export async function getEkskulGalleries(ekskulId: string): Promise<EkskulGallery[]> {
+  const { data, error } = await supabase
+    .from('ekskul_galleries')
+    .select('*')
+    .eq('ekskul_id', ekskulId)
+    .order('order_index', { ascending: true })
+
+  if (error) throw error
+  return data as EkskulGallery[]
 }
