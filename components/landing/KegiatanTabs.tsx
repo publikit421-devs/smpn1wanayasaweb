@@ -28,7 +28,8 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
-import type { Kegiatan } from '@/lib/supabase'
+import type { Kegiatan, Extracurricular } from '@/lib/supabase'
+import { LOCAL_EXTRACURRICULARS } from '@/lib/ekskul-data'
 
 type TabId = 'intrakurikuler' | 'ekstrakurikuler' | 'kokurikuler'
 
@@ -100,81 +101,13 @@ const ekskulGradients = [
   'from-red-500 to-rose-600',
 ]
 
-const fallbackEkskul: EkskulItem[] = [
-  {
-    name: 'Science Club',
-    image: '/kegiatan/praktikum-lab.svg',
-    desc: 'Eksplorasi sains melalui praktikum, percobaan, dan riset sederhana.',
-    pembina: 'Tenten Mudrika, S.Pd',
-  },
-  {
-    name: 'Drum Band',
-    image: '/kegiatan/upacara-bendera.svg',
-    desc: 'Latihan musik dan barisan drum band untuk melatih kekompakan dan disiplin.',
-    pembina: 'Hj. Lilis Juwariyah, S.Pd',
-  },
-  {
-    name: 'Hortikultura',
-    image: '/kegiatan/belajar-mengajar.svg',
-    desc: 'Berkebun, bercocok tanam, dan merawat lingkungan sekolah (adiwiyata).',
-    pembina: 'Cucu Susilawati, S.Pd',
-  },
-  {
-    name: 'Paskibra',
-    image: '/ekskul/paskibra.svg',
-    desc: 'Latihan baris-berbaris, keterampilan PBB, dan pengibaran bendera.',
-    pembina: 'Abyana Hendra',
-  },
-  {
-    name: 'Pramuka',
-    image: '/kegiatan/ekskul-pramuka.svg',
-    desc: 'Pembina Putra: Ageng Maulana, S.Pd • Pembina Putri: Nuraisyah Andalani Ibrahim, S.Pd',
-    pembina: 'Ageng Maulana, S.Pd & Nuraisyah Andalani Ibrahim, S.Pd',
-  },
-  {
-    name: 'Seni',
-    image: '/ekskul/tari.svg',
-    desc: 'Pengembangan bakat dan kreativitas seni tari, musik, dan pertunjukan.',
-    pembina: 'Erlin Kristiani, S.Sn',
-  },
-  {
-    name: 'Jurnalis',
-    image: '/kegiatan/belajar-mengajar.svg',
-    desc: 'Kegiatan menulis berita, majalah dinding, dan media informasi sekolah.',
-    pembina: 'Iis Widayanti, S.Pd',
-  },
-  {
-    name: 'Voli',
-    image: '/kegiatan/olahraga.svg',
-    desc: 'Latihan bola voli untuk meningkatkan kebugaran jasmani dan prestasi olahraga.',
-    pembina: 'Saepul Bayu, S.Pd',
-  },
-  {
-    name: 'Futsal',
-    image: '/ekskul/futsal.svg',
-    desc: 'Latihan futsal meliputi teknik dasar, dribbling, passing, dan pertandingan.',
-    pembina: 'Tris Septiana Hendrawan, S.Pd',
-  },
-  {
-    name: 'PKS',
-    image: '/kegiatan/upacara-bendera.svg',
-    desc: 'Patroli Keamanan Sekolah: membantu ketertiban lalu lintas dan keamanan sekolah.',
-    pembina: 'Dude Suganda',
-  },
-  {
-    name: 'Tahfidz',
-    image: '/kegiatan/belajar-mengajar.svg',
-    desc: 'Program menghafal Al-Qur\u2019an dan pembinaan keagamaan.',
-    pembina: 'Yopi Ahmad Faisal',
-  },
-  {
-    name: 'PMR',
-    image: '/ekskul/pmr.svg',
-    desc: 'Wadah pembinaan dan pengembangan anggota remaja PMR dalam bidang kemanusiaan, kesehatan, kesiapsiagaan bencana, dan pertolongan pertama di lingkungan sekolah maupun masyarakat.',
-    pembina: 'Dani Ahmad Fauzi, S.Pd & Ela Nurlaelasari, S.Pd',
-    slug: 'pmr',
-  },
-]
+const fallbackEkskul: EkskulItem[] = LOCAL_EXTRACURRICULARS.map((e) => ({
+  name: e.name,
+  image: e.image,
+  desc: e.description,
+  pembina: e.instructors,
+  slug: e.slug,
+}))
 
 interface P5Item {
   icon: LucideIcon
@@ -245,43 +178,78 @@ function initials(name: string) {
 export default function KegiatanTabs() {
   const [active, setActive] = React.useState<TabId>('intrakurikuler')
   const [ekskul, setEkskul] = React.useState<EkskulItem[]>(fallbackEkskul)
-  const [detailSlugs, setDetailSlugs] = React.useState<Set<string>>(new Set())
+  const [detailSlugs, setDetailSlugs] = React.useState<Set<string>>(
+    () => new Set(LOCAL_EXTRACURRICULARS.map((e) => e.slug))
+  )
 
   React.useEffect(() => {
+    let active = true
+
+    const merged = new Map<string, EkskulItem>()
+    LOCAL_EXTRACURRICULARS.forEach((e) =>
+      merged.set(e.slug, {
+        name: e.name,
+        image: e.image,
+        desc: e.description,
+        pembina: e.instructors,
+        slug: e.slug,
+      })
+    )
+
+    // Sumber utama: tabel `extracurriculars` (di-override ke baseline lokal)
     supabase
       .from('extracurriculars')
-      .select('slug')
-      .eq('is_active', true)
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setDetailSlugs(new Set(data.map((d) => d.slug)))
-        }
-      })
-  }, [])
-
-  React.useEffect(() => {
-    supabase
-      .from('kegiatan')
       .select('*')
-      .eq('category', 'ekstrakurikuler')
       .eq('is_active', true)
-      .order('urutan', { ascending: true })
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setEkskul(
-            (data as Kegiatan[]).map((k) => {
-              const fb = fallbackEkskul.find((f) => f.name === k.title)
-              return {
-                name: k.title,
-                image: k.image_url || fb?.image || '/kegiatan/ekskul-pramuka.svg',
-                desc: k.description ?? fb?.desc ?? '',
-                pembina: k.pembina ?? fb?.pembina ?? '',
-                slug: k.slug ?? slugify(k.title ?? ''),
-              }
+      .order('name', { ascending: true })
+      .then(({ data, error }) => {
+        if (!active) return
+        if (!error && data && data.length > 0) {
+          const list = data as Extracurricular[]
+          list.forEach((e) => {
+            if (!e.slug) return
+            merged.set(e.slug, {
+              name: e.name,
+              image: e.banner_url || e.logo_url || merged.get(e.slug)?.image || '/kegiatan/ekskul-pramuka.svg',
+              desc: e.description ?? merged.get(e.slug)?.desc ?? '',
+              pembina: e.instructors ?? merged.get(e.slug)?.pembina ?? '',
+              slug: e.slug,
             })
-          )
+          })
+          setEkskul(Array.from(merged.values()))
+          setDetailSlugs(new Set(merged.keys()))
+          return
         }
+        // Fallback: bila `extracurriculars` kosong/error, pakai tabel `kegiatan`
+        supabase
+          .from('kegiatan')
+          .select('*')
+          .eq('category', 'ekstrakurikuler')
+          .eq('is_active', true)
+          .order('urutan', { ascending: true })
+          .then(({ data: kData }) => {
+            if (!active) return
+            if (kData && kData.length > 0) {
+              ;(kData as Kegiatan[]).forEach((k) => {
+                const slug = k.slug ?? slugify(k.title ?? '')
+                const fb = fallbackEkskul.find((f) => f.slug === slug)
+                merged.set(slug, {
+                  name: k.title,
+                  image: k.image_url || fb?.image || '/kegiatan/ekskul-pramuka.svg',
+                  desc: k.description ?? fb?.desc ?? '',
+                  pembina: k.pembina ?? fb?.pembina ?? '',
+                  slug,
+                })
+              })
+              setEkskul(Array.from(merged.values()))
+              setDetailSlugs(new Set(merged.keys()))
+            }
+          })
       })
+
+    return () => {
+      active = false
+    }
   }, [])
 
   const activeTab = tabs.find((t) => t.id === active)!

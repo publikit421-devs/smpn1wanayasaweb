@@ -21,6 +21,7 @@ import {
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { deleteImage } from '@/lib/supabase-storage'
+import { syncExtracurricularsToSupabase } from '@/lib/ekskul-data'
 import ImageUploader from '@/components/admin/ImageUploader'
 import type {
   Extracurricular,
@@ -104,25 +105,34 @@ export default function PembinaDashboard() {
     })
   }, [router])
 
-  // Load daftar ekskul
+  // Load daftar ekskul (auto-sync data lokal ke Supabase terlebih dahulu)
   React.useEffect(() => {
     let active = true
-    supabase
-      .from('extracurriculars')
-      .select('*')
-      .eq('is_active', true)
-      .order('name', { ascending: true })
-      .then(({ data, error }) => {
-        if (!active) return
-        setLoading(false)
-        if (error) {
-          showError('Gagal memuat data ekskul: ' + error.message)
-          return
-        }
-        const list = (data as Extracurricular[]) || []
-        setEkskuls(list)
-        if (list.length > 0 && !selectedId) setSelectedId(list[0].id)
-      })
+
+    const load = async () => {
+      try {
+        await syncExtracurricularsToSupabase()
+      } catch {
+        // abaikan jika gagal sync
+      }
+      const { data, error } = await supabase
+        .from('extracurriculars')
+        .select('*')
+        .eq('is_active', true)
+        .order('name', { ascending: true })
+
+      if (!active) return
+      setLoading(false)
+      if (error) {
+        showError('Gagal memuat data ekskul: ' + error.message)
+        return
+      }
+      const list = (data as Extracurricular[]) || []
+      setEkskuls(list)
+      if (list.length > 0) setSelectedId((prev) => prev ?? list[0].id)
+    }
+
+    load()
     return () => {
       active = false
     }
