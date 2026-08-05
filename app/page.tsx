@@ -2,9 +2,11 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import HeroSlider from '@/components/landing/HeroSlider'
 import StatsSection from '@/components/landing/StatsSection'
+import StudentStatsSection from '@/components/landing/StudentStatsSection'
 import KegiatanTabs from '@/components/landing/KegiatanTabs'
 import SpmbSection from '@/components/landing/SpmbSection'
 import AnnouncementSection from '@/components/home/AnnouncementSection'
+import GallerySection from '@/components/landing/GallerySection'
 import GuruStaffDirectory from '@/components/landing/GuruStaffDirectory'
 import LayananPortalSection from '@/components/landing/LayananPortalSection'
 import ServiceHoursSection from '@/components/home/ServiceHoursSection'
@@ -17,9 +19,11 @@ export default function HomePage() {
       <main>
         <HeroSlider />
         <StatsSection />
+        <StudentStatsSection />
         <KegiatanTabs />
         <SpmbSection />
         <AnnouncementSection />
+        <GallerySection />
         <GuruStaffDirectory />
         <LayananPortalSection />
         <ServiceHoursSection />

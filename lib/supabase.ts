@@ -82,6 +82,8 @@ export interface Staff {
   role?: string
   bidang?: string
   jenis: 'guru' | 'staf'
+  jenis_ptk?: 'Guru' | 'Tenaga Kependidikan' | 'Kepala Sekolah'
+  jabatan?: string
   email?: string
   telepon?: string
   urutan?: number
@@ -91,13 +93,14 @@ export interface Staff {
 }
 
 export type KegiatanCategory = 'intrakurikuler' | 'ekstrakurikuler' | 'kokurikuler'
-
 export interface Kegiatan {
   id: string
   title: string
   description?: string
   category: KegiatanCategory
   image_url?: string
+  pembina?: string
+  urutan?: number
   tanggal?: string
   is_active: boolean
   created_at: string
@@ -119,8 +122,41 @@ export interface SpmbSetting {
   updated_at: string
 }
 
-export type UserRole = 'admin' | 'operator_tu' | 'public'
+export interface StudentAgeGroup {
+  label: string
+  total: number
+  laki: number
+  perempuan: number
+}
 
+export interface StudentReligion {
+  label: string
+  total: number
+  laki: number
+  perempuan: number
+}
+
+export interface StudentStats {
+  id: string
+  tahun_ajaran: string
+  total: number
+  laki: number
+  perempuan: number
+  usia: StudentAgeGroup[]
+  agama: StudentReligion[]
+  updated_at: string
+}
+
+export interface GalleryItem {
+  id: string
+  image_url: string
+  caption?: string
+  urutan?: number
+  is_active: boolean
+  created_at: string
+}
+
+export type UserRole = 'admin' | 'operator_tu' | 'public'
 export interface UserProfile {
   id: string
   full_name?: string | null
@@ -146,17 +182,77 @@ export async function getPublishedAnnouncements(limit = 6) {
   return data as Announcement[]
 }
 
+export async function getStudentStats(): Promise<StudentStats | null> {
+  const { data, error } = await supabase
+    .from('student_stats')
+    .select('*')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) return null
+  return data as StudentStats | null
+}
+
 export async function submitServiceRequest(
   payload: Omit<PublicService, 'id' | 'status' | 'nomor_registrasi' | 'created_at' | 'updated_at' | 'catatan_admin'>
 ) {
-  const { data, error } = await supabase
-    .from('public_services')
-    .insert(payload)
-    .select()
-    .single()
+  const { data, error } = await supabase.rpc('submit_service_request', {
+    p_service_type: payload.service_type,
+    p_nama_pemohon: payload.nama_pemohon,
+    p_no_telepon: payload.no_telepon,
+    p_nik: payload.nik ?? null,
+    p_alamat: payload.alamat ?? null,
+    p_email: payload.email ?? null,
+    p_payload: payload.payload ?? {},
+  })
 
   if (error) throw error
   return data as PublicService
+}
+
+export interface LayananRequest {
+  id: string
+  nama_lengkap: string
+  nik?: string
+  no_telepon: string
+  email?: string
+  alamat?: string
+  informasi_diminta: string
+  tujuan_penggunaan?: string
+  cara_perolehan?: string
+  nomor_registrasi?: string
+  status: string
+  created_at: string
+}
+
+/**
+ * Kirim permohonan layanan informasi publik ke tabel layanan_requests.
+ * nomor_registrasi dibuat di frontend agar bisa langsung ditampilkan ke
+ * pengunjung (anon tidak bisa SELECT, jadi tidak bisa membaca hasil insert).
+ */
+export async function submitLayananRequest(payload: {
+  nama_lengkap: string
+  nik?: string
+  no_telepon: string
+  email?: string
+  alamat?: string
+  informasi_diminta: string
+  tujuan_penggunaan?: string
+  cara_perolehan?: string
+}) {
+  const nomorRegistrasi = `SMPN1/${new Date().getFullYear()}/${String(Date.now()).slice(-6)}`
+
+  const { error } = await supabase
+    .from('layanan_requests')
+    .insert({ ...payload, nomor_registrasi: nomorRegistrasi })
+
+  if (error) {
+    console.error('Supabase Submit Error:', error)
+    throw error
+  }
+
+  return { nomor_registrasi: nomorRegistrasi }
 }
 
 export async function submitSKMFeedback(

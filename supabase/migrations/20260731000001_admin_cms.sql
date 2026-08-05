@@ -80,22 +80,30 @@ alter table public.staff enable row level security;
 alter table public.kegiatan enable row level security;
 alter table public.spmb_settings enable row level security;
 
+drop policy if exists "Allow read school_profiles" on public.school_profiles;
 create policy "Allow read school_profiles" on public.school_profiles
   for select using (true);
+drop policy if exists "Allow manage school_profiles" on public.school_profiles;
 create policy "Allow manage school_profiles" on public.school_profiles
   for all using (auth.role() = 'authenticated');
 
+drop policy if exists "Allow read staff" on public.staff;
 create policy "Allow read staff" on public.staff
   for select using (true);
+drop policy if exists "Allow manage staff" on public.staff;
 create policy "Allow manage staff" on public.staff
   for all using (auth.role() = 'authenticated');
 
+drop policy if exists "Allow read kegiatan" on public.kegiatan;
 create policy "Allow read kegiatan" on public.kegiatan
   for select using (true);
+drop policy if exists "Allow manage kegiatan" on public.kegiatan;
 create policy "Allow manage kegiatan" on public.kegiatan
   for all using (auth.role() = 'authenticated');
 
+drop policy if exists "Allow read spmb_settings" on public.spmb_settings;
 create policy "Allow read spmb_settings" on public.spmb_settings
   for select using (true);
+drop policy if exists "Allow manage spmb_settings" on public.spmb_settings;
 create policy "Allow manage spmb_settings" on public.spmb_settings
   for all using (auth.role() = 'authenticated');

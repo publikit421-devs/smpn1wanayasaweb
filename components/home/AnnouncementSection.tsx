@@ -1,5 +1,6 @@
 'use client'
 
+import * as React from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
@@ -24,7 +25,9 @@ const categoryConfig = {
   },
 }
 
-// Sample data for fallback when Supabase is not yet configured
+// Sample data for fallback when Supabase is not yet configured.
+// Tanggal memakai nilai ISO string statis (bukan `new Date()`) agar
+// output SSR dan client hydration selalu identik.
 const sampleAnnouncements: Announcement[] = [
   {
     id: '1',
@@ -34,9 +37,9 @@ const sampleAnnouncements: Announcement[] = [
     category: 'pengumuman',
     is_pinned: true,
     is_published: true,
-    published_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    published_at: '2026-07-31T00:00:00.000Z',
+    created_at: '2026-07-31T00:00:00.000Z',
+    updated_at: '2026-07-31T00:00:00.000Z',
   },
   {
     id: '2',
@@ -46,9 +49,9 @@ const sampleAnnouncements: Announcement[] = [
     category: 'pengumuman',
     is_pinned: false,
     is_published: true,
-    published_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    published_at: '2026-09-12T00:00:00.000Z',
+    created_at: '2026-09-12T00:00:00.000Z',
+    updated_at: '2026-09-12T00:00:00.000Z',
   },
   {
     id: '3',
@@ -58,9 +61,9 @@ const sampleAnnouncements: Announcement[] = [
     category: 'berita',
     is_pinned: false,
     is_published: true,
-    published_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    published_at: '2026-08-10T00:00:00.000Z',
+    created_at: '2026-08-10T00:00:00.000Z',
+    updated_at: '2026-08-10T00:00:00.000Z',
   },
 ]
 
@@ -69,6 +72,12 @@ interface AnnouncementSectionProps {
 }
 
 export default function AnnouncementSection({ announcements = sampleAnnouncements }: AnnouncementSectionProps) {
+  const [isMounted, setIsMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   return (
     <section
       className="py-20 bg-slate-50"
@@ -149,10 +158,10 @@ export default function AnnouncementSection({ announcements = sampleAnnouncement
                   {/* Footer */}
                   <div className="flex items-center justify-between">
                     <time
-                      dateTime={item.published_at}
+                      dateTime={item.published_at || item.created_at}
                       className="text-xs text-slate-400"
                     >
-                      {formatDate(item.published_at)}
+                      {isMounted ? formatDate(item.published_at || item.created_at) : ''}
                     </time>
                     <Link
                       href={`/pengumuman/${item.slug}`}

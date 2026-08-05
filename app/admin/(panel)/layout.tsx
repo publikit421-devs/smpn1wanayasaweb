@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import {
   GraduationCap, LayoutDashboard, Building2, Users, CalendarDays,
-  Newspaper, Ticket, FileText, LogOut, Menu, X,
+  Newspaper, Ticket, FileText, LogOut, Menu, X, Images,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -22,6 +22,7 @@ const navGroups = [
       { href: '/admin/guru-staff', label: 'Data Guru & Staf', icon: Users },
       { href: '/admin/kegiatan-spmb', label: 'Kegiatan & SPMB', icon: CalendarDays },
       { href: '/admin/berita', label: 'Berita & Pengumuman', icon: Newspaper },
+      { href: '/admin/galeri', label: 'Galeri Foto', icon: Images },
     ],
   },
   {
@@ -39,6 +40,7 @@ const pageTitles: Record<string, string> = {
   '/admin/guru-staff': 'Data Guru & Staf',
   '/admin/kegiatan-spmb': 'Kegiatan & SPMB',
   '/admin/berita': 'Berita & Pengumuman',
+  '/admin/galeri': 'Galeri Foto',
   '/admin/tiket-skm': 'Tiket Layanan & Laporan SKM',
   '/admin/permohonan': 'Monitoring Permohonan',
 }

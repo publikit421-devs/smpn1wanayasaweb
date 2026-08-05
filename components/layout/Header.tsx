@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 
 const navLinks = [
   { href: '/', label: 'Beranda' },
+  { href: '/profil', label: 'Profil' },
   { href: '/layanan', label: 'Layanan' },
   { href: '/pengumuman', label: 'Pengumuman' },
   { href: '/#kontak', label: 'Kontak' },
@@ -29,7 +30,8 @@ export default function Header() {
 
   // Close drawer on route change
   useEffect(() => {
-    setIsOpen(false)
+    const id = setTimeout(() => setIsOpen(false), 0)
+    return () => clearTimeout(id)
   }, [pathname])
 
   const isActive = (href: string) => {
@@ -55,15 +57,15 @@ export default function Header() {
               <div className={cn(
                 'flex items-center justify-center overflow-hidden rounded-xl transition-all duration-300',
                 scrolled
-                  ? 'h-10 w-10 shadow-md ring-2 ring-brand-200'
-                  : 'h-10 w-10 ring-2 ring-white/40'
+                  ? 'h-11 w-11 shadow-md ring-2 ring-brand-200'
+                  : 'h-11 w-11 ring-2 ring-white/40'
               )}>
                 <Image
                   src="/logo.svg"
                   alt="Logo SMP Negeri 1 Wanayasa"
-                  width={40}
-                  height={40}
-                  className="h-full w-full object-cover"
+                  width={44}
+                  height={44}
+                  className="h-full w-full object-contain"
                   priority
                 />
               </div>

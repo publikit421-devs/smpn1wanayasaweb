@@ -26,6 +26,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
+import type { Kegiatan } from '@/lib/supabase'
 
 type TabId = 'intrakurikuler' | 'ekstrakurikuler' | 'kokurikuler'
 
@@ -78,68 +80,90 @@ const intraItems: IntraItem[] = [
 interface EkskulItem {
   name: string
   image: string
-  imageAlt: string
+  desc: string
   pembina: string
-  jadwal: string
-  color: string
 }
 
-const ekskulItems: EkskulItem[] = [
+const ekskulGradients = [
+  'from-blue-600 to-cyan-600',
+  'from-rose-500 to-red-600',
+  'from-emerald-500 to-green-600',
+  'from-orange-500 to-amber-600',
+  'from-violet-500 to-purple-600',
+  'from-pink-500 to-fuchsia-600',
+  'from-cyan-500 to-sky-600',
+  'from-amber-500 to-orange-600',
+  'from-lime-500 to-green-600',
+  'from-indigo-500 to-blue-600',
+  'from-red-500 to-rose-600',
+]
+
+const fallbackEkskul: EkskulItem[] = [
   {
-    name: 'Pramuka',
-    image: '/kegiatan/ekskul-pramuka.svg',
-    imageAlt: 'Kegiatan ekstrakurikuler pramuka',
-    pembina: 'Kak. Budi Santoso, S.Pd.',
-    jadwal: 'Sabtu',
-    color: 'from-red-500 to-rose-600',
+    name: 'Science Club',
+    image: '/kegiatan/praktikum-lab.svg',
+    desc: 'Eksplorasi sains melalui praktikum, percobaan, dan riset sederhana.',
+    pembina: 'Tenten Mudrika, S.Pd',
+  },
+  {
+    name: 'Drum Band',
+    image: '/kegiatan/upacara-bendera.svg',
+    desc: 'Latihan musik dan barisan drum band untuk melatih kekompakan dan disiplin.',
+    pembina: 'Hj. Lilis Juwariyah, S.Pd',
+  },
+  {
+    name: 'Hortikultura',
+    image: '/kegiatan/belajar-mengajar.svg',
+    desc: 'Berkebun, bercocok tanam, dan merawat lingkungan sekolah (adiwiyata).',
+    pembina: 'Cucu Susilawati, S.Pd',
   },
   {
     name: 'Paskibra',
     image: '/ekskul/paskibra.svg',
-    imageAlt: 'Kegiatan ekstrakurikuler paskibra',
-    pembina: 'Bpk. Andi Wijaya',
-    jadwal: 'Jumat',
-    color: 'from-rose-600 to-red-700',
+    desc: 'Latihan baris-berbaris, keterampilan PBB, dan pengibaran bendera.',
+    pembina: 'Abyana Hendra',
+  },
+  {
+    name: 'Pramuka',
+    image: '/kegiatan/ekskul-pramuka.svg',
+    desc: 'Pembina Putra: Ageng Maulana, S.Pd • Pembina Putri: Nuraisyah Andalani Ibrahim, S.Pd',
+    pembina: 'Ageng Maulana, S.Pd & Nuraisyah Andalani Ibrahim, S.Pd',
+  },
+  {
+    name: 'Seni',
+    image: '/ekskul/tari.svg',
+    desc: 'Pengembangan bakat dan kreativitas seni tari, musik, dan pertunjukan.',
+    pembina: 'Erlin Kristiani, S.Sn',
+  },
+  {
+    name: 'Jurnalis',
+    image: '/kegiatan/belajar-mengajar.svg',
+    desc: 'Kegiatan menulis berita, majalah dinding, dan media informasi sekolah.',
+    pembina: 'Iis Widayanti, S.Pd',
+  },
+  {
+    name: 'Voli',
+    image: '/kegiatan/olahraga.svg',
+    desc: 'Latihan bola voli untuk meningkatkan kebugaran jasmani dan prestasi olahraga.',
+    pembina: 'Saepul Bayu, S.Pd',
   },
   {
     name: 'Futsal',
     image: '/ekskul/futsal.svg',
-    imageAlt: 'Kegiatan ekstrakurikuler futsal',
-    pembina: 'Bpk. Dedi Kurniawan, S.Or.',
-    jadwal: 'Senin & Kamis',
-    color: 'from-green-600 to-emerald-700',
+    desc: 'Latihan futsal meliputi teknik dasar, dribbling, passing, dan pertandingan.',
+    pembina: 'Tris Septiana Hendrawan, S.Pd',
   },
   {
-    name: 'PMR',
-    image: '/ekskul/pmr.svg',
-    imageAlt: 'Kegiatan ekstrakurikuler palang merah remaja',
-    pembina: 'Ibu Siti Rahayu, S.Kep.',
-    jadwal: 'Rabu',
-    color: 'from-pink-600 to-rose-700',
+    name: 'PKS',
+    image: '/kegiatan/upacara-bendera.svg',
+    desc: 'Patroli Keamanan Sekolah: membantu ketertiban lalu lintas dan keamanan sekolah.',
+    pembina: 'Dude Suganda',
   },
   {
-    name: 'Robotik',
-    image: '/ekskul/robotik.svg',
-    imageAlt: 'Kegiatan ekstrakurikuler robotik',
-    pembina: 'Bpk. Agus Salim, S.T.',
-    jadwal: 'Kamis',
-    color: 'from-cyan-600 to-sky-700',
-  },
-  {
-    name: 'Basket',
-    image: '/ekskul/basket.svg',
-    imageAlt: 'Kegiatan ekstrakurikuler basket',
-    pembina: 'Bpk. Rio Pratama',
-    jadwal: 'Selasa & Kamis',
-    color: 'from-orange-500 to-amber-700',
-  },
-  {
-    name: 'Tari Tradisional',
-    image: '/ekskul/tari.svg',
-    imageAlt: 'Kegiatan ekstrakurikuler tari tradisional',
-    pembina: 'Ibu Nurhayati, S.Sn.',
-    jadwal: 'Jumat',
-    color: 'from-pink-500 to-fuchsia-700',
+    name: 'Tahfidz',
+    image: '/kegiatan/belajar-mengajar.svg',
+    desc: 'Program menghafal Al-Qur\u2019an dan pembinaan keagamaan.',
+    pembina: 'Yopi Ahmad Faisal',
   },
 ]
 
@@ -202,6 +226,28 @@ function initials(name: string) {
 
 export default function KegiatanTabs() {
   const [active, setActive] = React.useState<TabId>('intrakurikuler')
+  const [ekskul, setEkskul] = React.useState<EkskulItem[]>(fallbackEkskul)
+
+  React.useEffect(() => {
+    supabase
+      .from('kegiatan')
+      .select('*')
+      .eq('category', 'ekstrakurikuler')
+      .eq('is_active', true)
+      .order('urutan', { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setEkskul(
+            (data as Kegiatan[]).map((k, i) => ({
+              name: k.title,
+              image: k.image_url || fallbackEkskul[i]?.image || '/kegiatan/ekskul-pramuka.svg',
+              desc: k.description ?? '',
+              pembina: k.pembina ?? '',
+            }))
+          )
+        }
+      })
+  }, [])
 
   const activeTab = tabs.find((t) => t.id === active)!
 
@@ -305,15 +351,15 @@ export default function KegiatanTabs() {
 
               {active === 'ekstrakurikuler' && (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {ekskulItems.map((item) => (
+                  {ekskul.map((item, i) => (
                     <Card
-                      key={item.name}
+                      key={`${item.name}-${i}`}
                       className="group overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
                     >
                       <div className="relative aspect-[16/10] w-full overflow-hidden">
                         <Image
                           src={item.image}
-                          alt={item.imageAlt}
+                          alt={`Kegiatan ekstrakurikuler ${item.name}`}
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -321,24 +367,34 @@ export default function KegiatanTabs() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                         <Badge className="absolute left-3 top-3 bg-white/90 text-slate-800 backdrop-blur-sm">
                           <Trophy className="h-3 w-3" />
-                          {item.jadwal}
+                          Ekstrakurikuler
                         </Badge>
                       </div>
                       <CardContent className="px-5 py-4">
-                        <h3 className="mb-3 text-base font-bold text-slate-800">{item.name}</h3>
-                        <div className="flex items-center gap-3 border-t border-slate-100 pt-3">
-                          <Avatar size="default" className="h-8 w-8">
-                            <AvatarFallback className={cn('bg-gradient-to-br text-[11px] font-bold text-white', item.color)}>
-                              {initials(item.pembina)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                              Pembina
-                            </p>
-                            <p className="truncate text-sm font-semibold text-slate-700">{item.pembina}</p>
+                        <h3 className="text-base font-bold text-slate-800">{item.name}</h3>
+                        {item.desc && (
+                          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-slate-500">{item.desc}</p>
+                        )}
+                        {item.pembina && (
+                          <div className="mt-3 flex items-center gap-3 border-t border-slate-100 pt-3">
+                            <Avatar size="default" className="h-8 w-8">
+                              <AvatarFallback
+                                className={cn(
+                                  'bg-gradient-to-br text-[11px] font-bold text-white',
+                                  ekskulGradients[i % ekskulGradients.length]
+                                )}
+                              >
+                                {initials(item.pembina)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                Pembina
+                              </p>
+                              <p className="truncate text-sm font-semibold text-slate-700">{item.pembina}</p>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}

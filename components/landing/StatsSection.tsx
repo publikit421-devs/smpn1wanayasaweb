@@ -6,6 +6,7 @@ import { Award, BookOpen, Users, GraduationCap, TrendingUp } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { getStudentStats } from '@/lib/supabase'
 
 interface StatItem {
   icon: React.ElementType
@@ -16,43 +17,9 @@ interface StatItem {
   accent: string
 }
 
-const stats: StatItem[] = [
-  {
-    icon: Users,
-    value: 500,
-    suffix: '+',
-    label: 'Siswa Aktif',
-    description: 'Siswa aktif dari kelas VII, VIII, dan IX',
-    accent: 'text-blue-600 bg-blue-50',
-  },
-  {
-    icon: GraduationCap,
-    value: 30,
-    suffix: '+',
-    label: 'Guru & Staf',
-    description: 'Pendidik dan tenaga kependidikan profesional',
-    accent: 'text-emerald-600 bg-emerald-50',
-  },
-  {
-    icon: Award,
-    value: 96,
-    suffix: '',
-    label: 'Akreditasi A',
-    description: 'Predikat akreditasi "A" (96 dari 100)',
-    accent: 'text-amber-600 bg-amber-50',
-  },
-  {
-    icon: BookOpen,
-    value: 24,
-    suffix: '',
-    label: 'Rombongan Belajar',
-    description: 'Rombel aktif untuk pembelajaran optimal',
-    accent: 'text-purple-600 bg-purple-50',
-  },
-]
-
 function CountUp({ target, inView }: { target: number; inView: boolean }) {
   const [value, setValue] = React.useState(0)
+  const safeTarget = Number.isFinite(target) && target > 0 ? target : 0
 
   React.useEffect(() => {
     if (!inView) return
@@ -64,13 +31,13 @@ function CountUp({ target, inView }: { target: number; inView: boolean }) {
       const progress = Math.min((now - start) / duration, 1)
       // easeOutExpo
       const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress)
-      setValue(Math.round(eased * target))
+      setValue(Math.round(eased * safeTarget))
       if (progress < 1) raf = requestAnimationFrame(tick)
     }
 
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [inView, target])
+  }, [inView, safeTarget])
 
   return <>{value.toLocaleString('id-ID')}</>
 }
@@ -78,6 +45,52 @@ function CountUp({ target, inView }: { target: number; inView: boolean }) {
 export default function StatsSection() {
   const ref = React.useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
+  const [siswaTotal, setSiswaTotal] = React.useState(804)
+
+  React.useEffect(() => {
+    getStudentStats().then((s) => {
+      if (s && typeof s.total === 'number' && Number.isFinite(s.total)) {
+        setSiswaTotal(s.total)
+      }
+    })
+  }, [])
+
+  const totalSiswa = Number(siswaTotal) || 804
+
+  const stats: StatItem[] = [
+    {
+      icon: Users,
+      value: totalSiswa,
+      suffix: '',
+      label: 'Siswa Aktif',
+      description: 'Siswa aktif dari kelas VII, VIII, dan IX',
+      accent: 'text-blue-600 bg-blue-50',
+    },
+    {
+      icon: GraduationCap,
+      value: 30,
+      suffix: '+',
+      label: 'Guru & Staf',
+      description: 'Pendidik dan tenaga kependidikan profesional',
+      accent: 'text-emerald-600 bg-emerald-50',
+    },
+    {
+      icon: Award,
+      value: 96,
+      suffix: '',
+      label: 'Akreditasi A',
+      description: 'Predikat akreditasi "A" (96 dari 100)',
+      accent: 'text-amber-600 bg-amber-50',
+    },
+    {
+      icon: BookOpen,
+      value: 24,
+      suffix: '',
+      label: 'Rombongan Belajar',
+      description: 'Rombel aktif untuk pembelajaran optimal',
+      accent: 'text-purple-600 bg-purple-50',
+    },
+  ]
 
   return (
     <section

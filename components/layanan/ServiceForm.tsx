@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react'
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react'
-import { submitServiceRequest } from '@/lib/supabase'
+import { submitServiceRequest, submitLayananRequest } from '@/lib/supabase'
 import type { ServiceType } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import SKMModal from '@/components/skm/SKMModal'
@@ -43,6 +43,7 @@ export default function ServiceForm({
 }: ServiceFormProps) {
   const [values, setValues] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<{ success: boolean; nomorRegistrasi?: string } | null>(null)
   const [showSKM, setShowSKM] = useState(false)
   const [serviceId, setServiceId] = useState<string | undefined>()
@@ -56,32 +57,49 @@ export default function ServiceForm({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError(null)
     setResult(null)
 
     try {
-      const payload: Record<string, string> = {}
-      extraFields.forEach((f) => {
-        if (values[f.name]) payload[f.name] = values[f.name]
-      })
+      if (serviceType === 'informasi-publik') {
+        const res = await submitLayananRequest({
+          nama_lengkap: values.nama_pemohon || '',
+          nik: values.nik || undefined,
+          no_telepon: values.no_telepon || '',
+          email: values.email || undefined,
+          alamat: values.alamat || undefined,
+          informasi_diminta: values.informasi_diminta || '',
+          tujuan_penggunaan: values.tujuan_penggunaan || undefined,
+          cara_perolehan: values.cara_perolehan || undefined,
+        })
+        setResult({ success: true, nomorRegistrasi: res.nomor_registrasi })
+      } else {
+        const payload: Record<string, string> = {}
+        extraFields.forEach((f) => {
+          if (values[f.name]) payload[f.name] = values[f.name]
+        })
 
-      const data = await submitServiceRequest({
-        service_type: serviceType,
-        nama_pemohon: values.nama_pemohon || '',
-        nik: values.nik || undefined,
-        no_telepon: values.no_telepon || '',
-        email: values.email || undefined,
-        alamat: values.alamat || undefined,
-        payload,
-      })
+        const data = await submitServiceRequest({
+          service_type: serviceType,
+          nama_pemohon: values.nama_pemohon || '',
+          nik: values.nik || undefined,
+          no_telepon: values.no_telepon || '',
+          email: values.email || undefined,
+          alamat: values.alamat || undefined,
+          payload,
+        })
 
-      setServiceId(data.id)
-      setResult({ success: true, nomorRegistrasi: data.nomor_registrasi })
+        setServiceId(data.id)
+        setResult({ success: true, nomorRegistrasi: data.nomor_registrasi })
+      }
       setShowSKM(true)
-    } catch {
-      // Demo mode — show success even without Supabase
-      const demoNomor = `SMPN1/${new Date().getFullYear()}/${String(Math.floor(Math.random() * 9000) + 1000).padStart(4, '0')}`
-      setResult({ success: true, nomorRegistrasi: demoNomor })
-      setShowSKM(true)
+    } catch (err) {
+      console.error('Supabase Submit Error:', err)
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Gagal mengirim permohonan. Silakan coba lagi atau hubungi sekolah.'
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -127,6 +145,12 @@ export default function ServiceForm({
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        {error && (
+          <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
         {allFields.map((field) => (
           <div key={field.id}>
             <label htmlFor={field.id} className="label-field">

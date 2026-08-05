@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import type { PublicService, ServiceStatus } from '@/lib/supabase'
+import type { PublicService, ServiceStatus, LayananRequest } from '@/lib/supabase'
 import {
   FileText, Loader2, ChevronDown, Search, RefreshCw, X,
 } from 'lucide-react'
@@ -29,6 +29,7 @@ const STATUS_OPTIONS: ServiceStatus[] = ['masuk', 'diproses', 'selesai', 'ditola
 
 export default function AdminPermohonanPage() {
   const router = useRouter()
+  const [tab, setTab] = useState<'layanan' | 'informasi'>('layanan')
   const [services, setServices] = useState<PublicService[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -38,6 +39,21 @@ export default function AdminPermohonanPage() {
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [newStatus, setNewStatus] = useState<ServiceStatus>('masuk')
   const [catatanAdmin, setCatatanAdmin] = useState('')
+
+  const [layananRequests, setLayananRequests] = useState<LayananRequest[]>([])
+  const [loadingLayanan, setLoadingLayanan] = useState(true)
+  const [searchLayanan, setSearchLayanan] = useState('')
+
+  const fetchLayananRequests = useCallback(() => {
+    supabase
+      .from('layanan_requests')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setLayananRequests(data as LayananRequest[])
+        setLoadingLayanan(false)
+      })
+  }, [])
 
   const fetchServices = useCallback(() => {
     let query = supabase
@@ -59,7 +75,8 @@ export default function AdminPermohonanPage() {
       if (!data.session) router.replace('/admin/login')
     })
     fetchServices()
-  }, [router, fetchServices])
+    fetchLayananRequests()
+  }, [router, fetchServices, fetchLayananRequests])
 
   const filtered = services.filter((s) =>
     search
@@ -84,8 +101,44 @@ export default function AdminPermohonanPage() {
     setUpdatingStatus(false)
   }
 
+  async function handleUpdateLayananStatus(id: string, status: string) {
+    await supabase.from('layanan_requests').update({ status }).eq('id', id)
+    fetchLayananRequests()
+  }
+
+  const filteredLayanan = layananRequests.filter((r) =>
+    searchLayanan
+      ? r.nama_lengkap.toLowerCase().includes(searchLayanan.toLowerCase()) ||
+        (r.nomor_registrasi || '').toLowerCase().includes(searchLayanan.toLowerCase())
+      : true
+  )
+
   return (
     <>
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setTab('layanan')}
+          className={cn(
+            'px-4 py-2 rounded-xl text-sm font-600 transition-all',
+            tab === 'layanan' ? 'bg-brand-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+          )}
+        >
+          Permohonan Layanan
+        </button>
+        <button
+          onClick={() => setTab('informasi')}
+          className={cn(
+            'px-4 py-2 rounded-xl text-sm font-600 transition-all',
+            tab === 'informasi' ? 'bg-brand-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+          )}
+        >
+          Informasi Publik
+        </button>
+      </div>
+
+      {tab === 'layanan' ? (
+        <>
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
@@ -229,6 +282,87 @@ export default function AdminPermohonanPage() {
             </div>
           </div>
         </div>
+      )}
+        </>
+      ) : (
+        <>
+          {/* Search */}
+          <div className="relative flex-1 mb-6">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <input
+              id="search-informasi"
+              type="text"
+              value={searchLayanan}
+              onChange={(e) => setSearchLayanan(e.target.value)}
+              placeholder="Cari nama atau no. registrasi..."
+              className="input-field pl-10"
+            />
+          </div>
+
+          {/* Table Informasi Publik */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            {loadingLayanan ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-brand-500" />
+              </div>
+            ) : filteredLayanan.length === 0 ? (
+              <div className="text-center py-16">
+                <FileText className="w-10 h-10 text-slate-200 mx-auto mb-3" />
+                <p className="text-slate-400 text-sm">Belum ada permohonan informasi publik.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 text-xs text-slate-500 font-600 uppercase tracking-wider">
+                      <th className="text-left px-6 py-3">No. Registrasi</th>
+                      <th className="text-left px-6 py-3">Nama Lengkap</th>
+                      <th className="text-left px-6 py-3">No. Telepon</th>
+                      <th className="text-left px-6 py-3">Informasi Diminta</th>
+                      <th className="text-left px-6 py-3">Status</th>
+                      <th className="text-left px-6 py-3">Tanggal</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredLayanan.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 font-600 font-mono text-xs text-slate-600">
+                          {item.nomor_registrasi || '—'}
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="font-600 text-slate-800">{item.nama_lengkap}</p>
+                          <p className="text-xs text-slate-400">{item.email || '—'}</p>
+                        </td>
+                        <td className="px-6 py-4 text-xs text-slate-600">{item.no_telepon}</td>
+                        <td className="px-6 py-4 text-xs text-slate-500 max-w-[240px]">
+                          <p className="line-clamp-2">{item.informasi_diminta}</p>
+                          {item.tujuan_penggunaan && (
+                            <p className="text-[11px] text-slate-400 mt-1">Tujuan: {item.tujuan_penggunaan}</p>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <select
+                            value={item.status}
+                            onChange={(e) => handleUpdateLayananStatus(item.id, e.target.value)}
+                            className="input-field !py-1.5 !px-2 text-xs"
+                          >
+                            <option value="Pending">Pending</option>
+                            <option value="Diproses">Diproses</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Ditolak">Ditolak</option>
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 text-slate-400 text-xs">
+                          {formatDate(item.created_at)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </>
   )

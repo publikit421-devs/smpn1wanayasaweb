@@ -2,11 +2,11 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { Megaphone, Newspaper, Calendar, ArrowLeft, Clock, User, Share2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import type { Announcement } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
+import AnnouncementImage from '@/components/announcements/AnnouncementImage'
 
 const categoryConfig = {
   pengumuman: { icon: Megaphone, label: 'Pengumuman', badgeClass: 'badge-blue', textClass: 'text-blue-700' },
@@ -136,6 +136,13 @@ export default async function DetailPengumumanPage(props: { params: Promise<{ sl
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-800 text-slate-800 leading-tight mb-8">
                 {item.title}
               </h1>
+
+              {/* Main Image (infografis / sampul) */}
+              {item.image_url && (
+                <div className="mb-8 -mx-6 sm:-mx-10">
+                  <AnnouncementImage src={item.image_url} alt={item.title} priority />
+                </div>
+              )}
 
               {/* Content */}
               <div className="prose max-w-none text-slate-600 leading-relaxed space-y-6 text-base whitespace-pre-line">

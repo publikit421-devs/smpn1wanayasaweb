@@ -74,6 +74,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE SEQUENCE IF NOT EXISTS registration_seq START 1;
 
+DROP TRIGGER IF EXISTS trg_registration_number ON public_services;
 CREATE TRIGGER trg_registration_number
   BEFORE INSERT ON public_services
   FOR EACH ROW
@@ -107,27 +108,33 @@ CREATE INDEX IF NOT EXISTS idx_skm_rating ON skm_feedbacks (rating);
 
 -- Announcements: public read, admin write
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public can read published announcements" ON announcements;
 CREATE POLICY "Public can read published announcements"
   ON announcements FOR SELECT
   USING (is_published = TRUE);
+DROP POLICY IF EXISTS "Admin can manage announcements" ON announcements;
 CREATE POLICY "Admin can manage announcements"
   ON announcements FOR ALL
   USING (auth.role() = 'authenticated');
 
 -- Public services: public insert, admin read+update
 ALTER TABLE public_services ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Anyone can submit a service request" ON public_services;
 CREATE POLICY "Anyone can submit a service request"
   ON public_services FOR INSERT
   WITH CHECK (TRUE);
+DROP POLICY IF EXISTS "Admin can read and update service requests" ON public_services;
 CREATE POLICY "Admin can read and update service requests"
   ON public_services FOR ALL
   USING (auth.role() = 'authenticated');
 
 -- SKM: public insert, admin read
 ALTER TABLE skm_feedbacks ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Anyone can submit SKM feedback" ON skm_feedbacks;
 CREATE POLICY "Anyone can submit SKM feedback"
   ON skm_feedbacks FOR INSERT
   WITH CHECK (TRUE);
+DROP POLICY IF EXISTS "Admin can read SKM feedbacks" ON skm_feedbacks;
 CREATE POLICY "Admin can read SKM feedbacks"
   ON skm_feedbacks FOR SELECT
   USING (auth.role() = 'authenticated');
@@ -156,4 +163,5 @@ INSERT INTO announcements (title, slug, content, category, is_pinned) VALUES
     'Selamat kepada siswa kelas IX atas pencapaian luar biasa meraih Juara 1 dalam Olimpiade Matematika Tingkat Kabupaten Banjarnegara 2026. Membanggakan!',
     'berita',
     FALSE
-  );
+  )
+ON CONFLICT (slug) DO NOTHING;

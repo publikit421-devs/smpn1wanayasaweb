@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { Kegiatan, KegiatanCategory, SpmbSetting } from '@/lib/supabase'
+import ImageUploader from '@/components/admin/ImageUploader'
 import {
   CalendarDays, Plus, Edit2, Trash2, Loader2, X, AlertCircle, CheckCircle,
   Eye, EyeOff, Save,
@@ -21,6 +22,8 @@ const emptyKegiatan: Omit<Kegiatan, 'id' | 'created_at' | 'updated_at' | 'is_act
   description: '',
   category: 'ekstrakurikuler',
   image_url: '',
+  pembina: '',
+  urutan: undefined,
   tanggal: '',
 }
 
@@ -62,6 +65,7 @@ export default function AdminKegiatanSpmbPage() {
       .from('kegiatan')
       .select('*')
       .order('tanggal', { ascending: false })
+      .order('urutan', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
       .then(({ data }) => {
         if (data) setItems(data as Kegiatan[])
@@ -115,6 +119,8 @@ export default function AdminKegiatanSpmbPage() {
       description: item.description ?? '',
       category: item.category,
       image_url: item.image_url ?? '',
+      pembina: item.pembina ?? '',
+      urutan: item.urutan,
       tanggal: item.tanggal ?? '',
     })
     setEditingId(item.id)
@@ -235,9 +241,10 @@ export default function AdminKegiatanSpmbPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead>
+                      <thead>
                     <tr className="bg-slate-50 text-xs text-slate-500 font-600 uppercase tracking-wider">
                       <th className="text-left px-6 py-3">Kegiatan</th>
+                      <th className="text-left px-6 py-3">Pembina</th>
                       <th className="text-left px-6 py-3">Kategori</th>
                       <th className="text-left px-6 py-3">Tanggal</th>
                       <th className="text-left px-6 py-3">Status</th>
@@ -252,6 +259,9 @@ export default function AdminKegiatanSpmbPage() {
                           <td className="px-6 py-4">
                             <p className="font-600 text-slate-800">{item.title}</p>
                             {item.description && <p className="text-xs text-slate-400 line-clamp-1">{item.description}</p>}
+                          </td>
+                          <td className="px-6 py-4 text-xs text-slate-600">
+                            {item.pembina || '—'}
                           </td>
                           <td className="px-6 py-4">
                             <span className={`badge ${cat.badgeCls}`}>{cat.label}</span>
@@ -325,14 +335,26 @@ export default function AdminKegiatanSpmbPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
+                      <label htmlFor="k-pembina" className="label-field">Pembina</label>
+                      <input id="k-pembina" type="text" value={form.pembina ?? ''} onChange={(e) => setForm({ ...form, pembina: e.target.value })} placeholder="Nama Pembina, S.Pd" className="input-field" />
+                    </div>
+                    <div>
+                      <label htmlFor="k-urutan" className="label-field">Urutan</label>
+                      <input id="k-urutan" type="number" value={form.urutan ?? ''} onChange={(e) => setForm({ ...form, urutan: e.target.value ? Number(e.target.value) : undefined })} placeholder="1" className="input-field" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
                       <label htmlFor="k-tanggal" className="label-field">Tanggal</label>
                       <input id="k-tanggal" type="date" value={form.tanggal} onChange={(e) => setForm({ ...form, tanggal: e.target.value })} className="input-field" />
                     </div>
-                    <div>
-                      <label htmlFor="k-image" className="label-field">URL Gambar / SVG</label>
-                      <input id="k-image" type="text" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="/kegiatan/nama.svg" className="input-field" />
-                    </div>
                   </div>
+                  <ImageUploader
+                    value={form.image_url || null}
+                    onChange={(url) => setForm({ ...form, image_url: url ?? '' })}
+                    folder="kegiatan"
+                    label="Gambar (opsional)"
+                  />
                   <div className="flex gap-3 pt-2">
                     <button onClick={() => setShowForm(false)} className="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-600 text-slate-600 hover:bg-slate-50 transition-colors">
                       Batal

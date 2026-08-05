@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { Announcement } from '@/lib/supabase'
+import { deleteImage } from '@/lib/supabase-storage'
+import ImageUploader from '@/components/admin/ImageUploader'
 import {
-  Newspaper, Plus, Edit2, Trash2, Pin, Eye, EyeOff, Loader2, X, AlertCircle,
+  Newspaper, Plus, Edit2, Trash2, Pin, Eye, EyeOff, Loader2, X, AlertCircle, ImagePlus,
 } from 'lucide-react'
 import { cn, formatDate } from '@/lib/utils'
 
@@ -27,6 +29,8 @@ export default function AdminBeritaPage() {
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [originalImage, setOriginalImage] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -46,11 +50,17 @@ export default function AdminBeritaPage() {
       })
   }
 
+  function resetImage() {
+    setImageUrl(null)
+    setOriginalImage(null)
+  }
+
   function openAdd() {
     setForm(emptyForm)
     setEditingId(null)
     setShowForm(true)
     setError(null)
+    resetImage()
   }
 
   function openEdit(item: Announcement) {
@@ -65,6 +75,9 @@ export default function AdminBeritaPage() {
     setEditingId(item.id)
     setShowForm(true)
     setError(null)
+    resetImage()
+    setOriginalImage(item.image_url ?? null)
+    setImageUrl(item.image_url ?? null)
   }
 
   async function handleSave() {
@@ -76,23 +89,31 @@ export default function AdminBeritaPage() {
     setError(null)
     const slug = form.slug || form.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
     try {
+      const payload = { ...form, slug, image_url: imageUrl }
       if (editingId) {
-        await supabase.from('announcements').update({ ...form, slug, updated_at: new Date().toISOString() }).eq('id', editingId)
+        await supabase
+          .from('announcements')
+          .update({ ...payload, updated_at: new Date().toISOString() })
+          .eq('id', editingId)
       } else {
-        await supabase.from('announcements').insert({ ...form, slug, published_at: new Date().toISOString() })
+        await supabase.from('announcements').insert({ ...payload, published_at: new Date().toISOString() })
       }
+      // Gambar lama diganti/dihapus → bersihkan dari Storage agar tidak menumpuk
+      if (originalImage && originalImage !== imageUrl) await deleteImage(originalImage)
       setShowForm(false)
+      resetImage()
       fetchAnnouncements()
-    } catch {
-      setError('Gagal menyimpan. Pastikan Supabase sudah dikonfigurasi.')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Gagal menyimpan. Pastikan Supabase sudah dikonfigurasi.')
     } finally {
       setSaving(false)
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('Yakin ingin menghapus pengumuman ini?')) return
-    await supabase.from('announcements').delete().eq('id', id)
+  async function handleDelete(item: Announcement) {
+    if (!confirm(`Yakin ingin menghapus "${item.title}"?`)) return
+    if (item.image_url) await deleteImage(item.image_url)
+    await supabase.from('announcements').delete().eq('id', item.id)
     fetchAnnouncements()
   }
 
@@ -128,6 +149,7 @@ export default function AdminBeritaPage() {
                   <tr className="bg-slate-50 text-xs text-slate-500 font-600 uppercase tracking-wider">
                     <th className="text-left px-6 py-3">Judul</th>
                     <th className="text-left px-6 py-3">Kategori</th>
+                    <th className="text-left px-6 py-3">Gambar</th>
                     <th className="text-left px-6 py-3">Status</th>
                     <th className="text-left px-6 py-3">Tanggal</th>
                     <th className="text-right px-6 py-3">Aksi</th>
@@ -148,6 +170,15 @@ export default function AdminBeritaPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
+                        {item.image_url ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-600 text-brand-600">
+                            <ImagePlus className="w-3.5 h-3.5" /> Ada
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-300">—</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
                         <span className={cn('badge', item.is_published ? 'badge-green' : 'badge-red')}>
                           {item.is_published ? 'Publish' : 'Draft'}
                         </span>
@@ -163,7 +194,7 @@ export default function AdminBeritaPage() {
                             className="p-1.5 rounded-lg text-brand-400 hover:text-brand-700 hover:bg-brand-50 transition-colors">
                             <Edit2 className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(item.id)} title="Hapus"
+                          <button onClick={() => handleDelete(item)} title="Hapus"
                             className="p-1.5 rounded-lg text-red-400 hover:text-red-700 hover:bg-red-50 transition-colors">
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -186,7 +217,7 @@ export default function AdminBeritaPage() {
               <h2 className="text-lg font-700 text-slate-800">
                 {editingId ? 'Edit Pengumuman' : 'Tambah Pengumuman'}
               </h2>
-              <button id="close-form-btn" onClick={() => setShowForm(false)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100">
+              <button id="close-form-btn" onClick={() => { setShowForm(false); resetImage() }} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -208,6 +239,17 @@ export default function AdminBeritaPage() {
                   <option value="agenda">Agenda</option>
                 </select>
               </div>
+
+              {/* Upload Gambar */}
+              <div>
+                <ImageUploader
+                  value={imageUrl}
+                  onChange={(url) => setImageUrl(url)}
+                  folder="berita"
+                  label="Gambar / Infografis (opsional)"
+                />
+              </div>
+
               <div>
                 <label htmlFor="form-content" className="label-field">Isi / Konten *</label>
                 <textarea id="form-content" rows={5} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="Isi pengumuman..." className="input-field resize-none" />
@@ -223,7 +265,7 @@ export default function AdminBeritaPage() {
                 </label>
               </div>
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setShowForm(false)} className="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-600 text-slate-600 hover:bg-slate-50 transition-colors">
+                <button onClick={() => { setShowForm(false); resetImage() }} className="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-600 text-slate-600 hover:bg-slate-50 transition-colors">
                   Batal
                 </button>
                 <button id="save-announcement-btn" onClick={handleSave} disabled={saving} className={cn('flex-1 btn-primary justify-center', saving && 'opacity-70 cursor-not-allowed')}>

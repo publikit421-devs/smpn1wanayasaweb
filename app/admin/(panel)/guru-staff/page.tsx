@@ -16,6 +16,8 @@ const emptyForm: Omit<Staff, 'id' | 'created_at' | 'updated_at' | 'is_active'> =
   role: '',
   bidang: '',
   jenis: 'guru',
+  jenis_ptk: 'Guru',
+  jabatan: '',
   email: '',
   telepon: '',
   urutan: 0,
@@ -58,9 +60,10 @@ export default function AdminGuruStaffPage() {
       ? item.nama.toLowerCase().includes(search.toLowerCase()) ||
         (item.nip || '').toLowerCase().includes(search.toLowerCase()) ||
         (item.bidang || '').toLowerCase().includes(search.toLowerCase()) ||
-        (item.role || '').toLowerCase().includes(search.toLowerCase())
+        (item.role || '').toLowerCase().includes(search.toLowerCase()) ||
+        (item.jabatan || '').toLowerCase().includes(search.toLowerCase())
       : true
-    const matchJenis = filterJenis ? item.jenis === filterJenis : true
+    const matchJenis = filterJenis ? (item.jenis_ptk ?? 'Guru') === filterJenis : true
     return matchSearch && matchJenis
   })
 
@@ -80,6 +83,8 @@ export default function AdminGuruStaffPage() {
       role: item.role ?? '',
       bidang: item.bidang ?? '',
       jenis: item.jenis,
+      jenis_ptk: item.jenis_ptk ?? 'Guru',
+      jabatan: item.jabatan ?? '',
       email: item.email ?? '',
       telepon: item.telepon ?? '',
       urutan: item.urutan ?? 0,
@@ -134,10 +139,11 @@ export default function AdminGuruStaffPage() {
           />
         </div>
         <div className="flex gap-3">
-          <select value={filterJenis} onChange={(e) => setFilterJenis(e.target.value)} className="input-field sm:w-44">
-            <option value="">Semua Jenis</option>
-            <option value="guru">Guru</option>
-            <option value="staf">Staf</option>
+          <select value={filterJenis} onChange={(e) => setFilterJenis(e.target.value)} className="input-field sm:w-52">
+            <option value="">Semua Jenis PTK</option>
+            <option value="Kepala Sekolah">Kepala Sekolah</option>
+            <option value="Guru">Guru</option>
+            <option value="Tenaga Kependidikan">Tenaga Kependidikan</option>
           </select>
           <button id="add-staff-btn" onClick={openAdd} className="btn-primary text-sm px-4 py-2 flex-shrink-0">
             <Plus className="w-4 h-4" /> Tambah
@@ -168,9 +174,9 @@ export default function AdminGuruStaffPage() {
                 <tr className="bg-slate-50 text-xs text-slate-500 font-600 uppercase tracking-wider">
                   <th className="text-left px-6 py-3">Nama</th>
                   <th className="text-left px-6 py-3">NIP</th>
-                  <th className="text-left px-6 py-3">Jabatan / Role</th>
+                  <th className="text-left px-6 py-3">Jabatan</th>
                   <th className="text-left px-6 py-3">Bidang</th>
-                  <th className="text-left px-6 py-3">Jenis</th>
+                  <th className="text-left px-6 py-3">Jenis PTK</th>
                   <th className="text-right px-6 py-3">Aksi</th>
                 </tr>
               </thead>
@@ -182,13 +188,13 @@ export default function AdminGuruStaffPage() {
                       {item.gelar && <p className="text-xs text-slate-400">{item.gelar}</p>}
                     </td>
                     <td className="px-6 py-4 font-mono text-xs text-slate-600">{item.nip || '—'}</td>
-                    <td className="px-6 py-4 text-slate-600">{item.role || '—'}</td>
+                    <td className="px-6 py-4 text-slate-600">{item.jabatan || item.role || '—'}</td>
                     <td className="px-6 py-4">
                       <span className="badge badge-blue">{item.bidang || 'Umum'}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={cn('badge', item.jenis === 'guru' ? 'badge-green' : 'badge-purple')}>
-                        {item.jenis === 'guru' ? 'Guru' : 'Staf'}
+                      <span className={cn('badge', (item.jenis_ptk ?? 'Guru') === 'Tenaga Kependidikan' ? 'badge-purple' : (item.jenis_ptk ?? 'Guru') === 'Kepala Sekolah' ? 'badge-yellow' : 'badge-green')}>
+                        {item.jenis_ptk ?? 'Guru'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -251,6 +257,20 @@ export default function AdminGuruStaffPage() {
                 <div>
                   <label htmlFor="s-bidang" className="label-field">Bidang Studi / Unit</label>
                   <input id="s-bidang" type="text" value={form.bidang} onChange={(e) => setForm({ ...form, bidang: e.target.value })} placeholder="Contoh: Matematika / Tata Usaha" className="input-field" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="s-jabatan" className="label-field">Jabatan Lengkap</label>
+                  <input id="s-jabatan" type="text" value={form.jabatan} onChange={(e) => setForm({ ...form, jabatan: e.target.value })} placeholder="Contoh: Guru Bimbingan Konseling" className="input-field" />
+                </div>
+                <div>
+                  <label htmlFor="s-jenis-ptk" className="label-field">Jenis PTK</label>
+                  <select id="s-jenis-ptk" value={form.jenis_ptk} onChange={(e) => setForm({ ...form, jenis_ptk: e.target.value as Staff['jenis_ptk'], jenis: e.target.value === 'Tenaga Kependidikan' ? 'staf' : 'guru' })} className="input-field">
+                    <option value="Kepala Sekolah">Kepala Sekolah</option>
+                    <option value="Guru">Guru</option>
+                    <option value="Tenaga Kependidikan">Tenaga Kependidikan</option>
+                  </select>
                 </div>
               </div>
               <div>

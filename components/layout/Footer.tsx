@@ -15,6 +15,7 @@ const serviceLinks = [
 
 const quickLinks = [
   { href: '/', label: 'Beranda' },
+  { href: '/profil', label: 'Profil Sekolah' },
   { href: '/layanan', label: 'Layanan Publik' },
   { href: '/pengumuman', label: 'Pengumuman & Berita' },
   { href: '/#statistik', label: 'Statistik Sekolah' },
