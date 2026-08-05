@@ -5,7 +5,10 @@ const ALLOWED_ROLES = new Set(['admin', 'operator_tu'])
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const isLoginPage = pathname === '/admin/login' || pathname === '/admin/login/'
+  const isAdminArea = pathname === '/admin' || pathname.startsWith('/admin')
+  const isPembinaArea = pathname === '/pembina' || pathname.startsWith('/pembina')
+  const isAdminLogin = pathname === '/admin/login' || pathname === '/admin/login/'
+  const isPembinaLogin = pathname === '/pembina/login' || pathname === '/pembina/login/'
 
   // Baca + perbarui cookie sesi via @supabase/ssr
   const { supabase, supabaseResponse, user } = await updateSession(request)
@@ -21,26 +24,45 @@ export async function proxy(request: NextRequest) {
     role = (data as { role?: string | null } | null)?.role ?? null
   }
 
-  // User sudah login tapi membuka halaman login → alihkan
-  if (isLoginPage) {
+  // Halaman login: arahkan pengguna yang sudah login sesuai role
+  if (isAdminLogin || isPembinaLogin) {
     if (user) {
-      if (ALLOWED_ROLES.has(role ?? '')) {
-        return NextResponse.redirect(new URL('/admin', request.url))
+      if (isPembinaLogin) {
+        if (role === 'pembina') return NextResponse.redirect(new URL('/pembina/dashboard', request.url))
+        if (ALLOWED_ROLES.has(role ?? '')) return NextResponse.redirect(new URL('/admin', request.url))
+      } else {
+        if (ALLOWED_ROLES.has(role ?? '')) return NextResponse.redirect(new URL('/admin', request.url))
+        if (role === 'pembina') return NextResponse.redirect(new URL('/pembina/dashboard', request.url))
       }
       return NextResponse.redirect(new URL('/', request.url))
     }
     return supabaseResponse
   }
 
-  // Rute /admin/*: wajib login
+  // Belum login → arahkan ke halaman login yang sesuai
   if (!user) {
-    const loginUrl = new URL('/admin/login', request.url)
-    loginUrl.searchParams.set('redirect', pathname)
-    return NextResponse.redirect(loginUrl)
+    if (isAdminArea) {
+      const loginUrl = new URL('/admin/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+    if (isPembinaArea) {
+      const loginUrl = new URL('/pembina/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+    return supabaseResponse
   }
 
-  // Login tetapi role bukan admin/operator_tu → kembali ke homepage
-  if (!ALLOWED_ROLES.has(role ?? '')) {
+  // Rute /admin/*: wajib role admin/operator_tu
+  if (isAdminArea && !ALLOWED_ROLES.has(role ?? '')) {
+    if (role === 'pembina') return NextResponse.redirect(new URL('/pembina/dashboard', request.url))
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+
+  // Rute /pembina/*: wajib role pembina
+  if (isPembinaArea && role !== 'pembina') {
+    if (ALLOWED_ROLES.has(role ?? '')) return NextResponse.redirect(new URL('/admin', request.url))
     return NextResponse.redirect(new URL('/', request.url))
   }
 
@@ -48,5 +70,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/pembina/:path*'],
 }

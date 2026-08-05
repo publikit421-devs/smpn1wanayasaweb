@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import {
   GraduationCap, LayoutDashboard, Building2, Users, CalendarDays,
-  Newspaper, Ticket, FileText, LogOut, Menu, X, Images,
+  Newspaper, Ticket, FileText, LogOut, Menu, X, Images, UserCog,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -32,6 +32,10 @@ const navGroups = [
       { href: '/admin/permohonan', label: 'Permohonan', icon: FileText },
     ],
   },
+  {
+    label: 'Ekstrakurikuler',
+    items: [{ href: '/admin/users', label: 'Akun Pembina', icon: UserCog }],
+  },
 ]
 
 const pageTitles: Record<string, string> = {
@@ -43,6 +47,7 @@ const pageTitles: Record<string, string> = {
   '/admin/galeri': 'Galeri Foto',
   '/admin/tiket-skm': 'Tiket Layanan & Laporan SKM',
   '/admin/permohonan': 'Monitoring Permohonan',
+  '/admin/users': 'Manajemen Akun Pembina',
 }
 
 export default function AdminPanelLayout({

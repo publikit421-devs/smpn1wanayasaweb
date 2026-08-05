@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  GraduationCap, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle,
-  ArrowLeft, ShieldCheck,
+  Medal, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, ShieldCheck,
 } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -14,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 
-export default function AdminLoginPage() {
+export default function PembinaLoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -38,7 +37,6 @@ export default function AdminLoginPage() {
         return
       }
 
-      // Periksa role pengguna untuk menentukan tujuan redirect
       const {
         data: { user },
       } = await supabase.auth.getUser()
@@ -57,7 +55,7 @@ export default function AdminLoginPage() {
         router.push('/admin')
       } else {
         await supabase.auth.signOut()
-        setError('Akun tidak memiliki akses panel. Silakan hubungi admin.')
+        setError('Akun tidak memiliki akses pembina. Silakan hubungi admin.')
         return
       }
       router.refresh()
@@ -86,19 +84,19 @@ export default function AdminLoginPage() {
           {/* Header */}
           <div className="gradient-brand relative p-8 text-center">
             <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner backdrop-blur-sm">
-              <GraduationCap className="h-8 w-8 text-white" />
+              <Medal className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-xl font-800 text-white">Panel Admin</h1>
+            <h1 className="text-xl font-800 text-white">Portal Pembina</h1>
             <p className="mt-1 text-sm text-blue-100">SMP Negeri 1 Wanayasa</p>
             <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-600 text-white/90">
               <ShieldCheck className="h-3.5 w-3.5" />
-              Akses terbatas untuk admin &amp; operator
+              Akses terbatas untuk pembina ekstrakurikuler
             </div>
           </div>
 
           <CardContent className="p-8">
             <h2 className="mb-6 text-center text-lg font-700 text-slate-800">
-              Masuk ke Dasbor Admin
+              Masuk ke Dasbor Pembina
             </h2>
 
             {/* Error Alert */}
@@ -123,18 +121,18 @@ export default function AdminLoginPage() {
             <form onSubmit={handleLogin} className="space-y-5" noValidate={false}>
               {/* Email */}
               <div>
-                <label htmlFor="admin-email" className="label-field">
+                <label htmlFor="pembina-email" className="label-field">
                   Email
                 </label>
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
-                    id="admin-email"
+                    id="pembina-email"
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@smpn1wanayasa.sch.id"
+                    placeholder="pembina@smpn1wanayasa.sch.id"
                     className="input-field pl-10"
                     autoComplete="email"
                   />
@@ -143,13 +141,13 @@ export default function AdminLoginPage() {
 
               {/* Password */}
               <div>
-                <label htmlFor="admin-password" className="label-field">
+                <label htmlFor="pembina-password" className="label-field">
                   Kata Sandi
                 </label>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
-                    id="admin-password"
+                    id="pembina-password"
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
@@ -171,7 +169,7 @@ export default function AdminLoginPage() {
               </div>
 
               <Button
-                id="admin-login-btn"
+                id="pembina-login-btn"
                 type="submit"
                 size="lg"
                 disabled={isLoading}
@@ -189,7 +187,7 @@ export default function AdminLoginPage() {
             </form>
 
             <p className="mt-6 text-center text-xs text-slate-400">
-              Hanya untuk staf dan administrator resmi sekolah.
+              Hanya untuk pembina ekstrakurikuler resmi sekolah.
             </p>
           </CardContent>
         </Card>

@@ -89,6 +89,9 @@ export default function PembinaDashboard() {
 
   const selected = ekskuls.find((e) => e.id === selectedId) || null
 
+  const [lockedEkskulId, setLockedEkskulId] = React.useState<string | null>(null)
+  const [role, setRole] = React.useState<string | null>(null)
+
   const showMessage = (msg: string) => {
     setMessage(msg)
     setTimeout(() => setMessage(null), 3000)
@@ -101,7 +104,7 @@ export default function PembinaDashboard() {
   // Auth guard
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) router.replace('/admin/login')
+      if (!data.session) router.replace('/pembina/login')
     })
   }, [router])
 
@@ -115,6 +118,23 @@ export default function PembinaDashboard() {
       } catch {
         // abaikan jika gagal sync
       }
+
+      // Ambil profil pengguna untuk mengetahui role & ekskul yang ditautkan
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      let userRole: string | null = null
+      let userEkskul: string | null = null
+      if (user) {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('role, ekskul_id')
+          .eq('id', user.id)
+          .maybeSingle()
+        userRole = prof?.role ?? null
+        userEkskul = prof?.ekskul_id ?? null
+      }
+
       const { data, error } = await supabase
         .from('extracurriculars')
         .select('*')
@@ -127,7 +147,18 @@ export default function PembinaDashboard() {
         showError('Gagal memuat data ekskul: ' + error.message)
         return
       }
-      const list = (data as Extracurricular[]) || []
+      let list = (data as Extracurricular[]) || []
+
+      // Lock filter untuk pembina: hanya ekskul miliknya
+      if (userRole === 'pembina') {
+        setRole('pembina')
+        setLockedEkskulId(userEkskul)
+        list = userEkskul ? list.filter((e) => e.id === userEkskul) : []
+      } else {
+        setRole(userRole)
+        setLockedEkskulId(null)
+      }
+
       setEkskuls(list)
       if (list.length > 0) setSelectedId((prev) => prev ?? list[0].id)
     }
@@ -343,11 +374,17 @@ export default function PembinaDashboard() {
                 value={selectedId || ''}
                 onChange={(e) => setSelectedId(e.target.value || null)}
                 className="input-field w-auto"
+                disabled={role === 'pembina'}
               >
                 {(ekskuls || []).map((e) => (
                   <option key={e.id} value={e.id}>{e.name}</option>
                 ))}
               </select>
+              {role === 'pembina' && (
+                <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">
+                  Akses terbatas
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -368,10 +405,22 @@ export default function PembinaDashboard() {
         {ekskuls.length === 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
             <School className="mx-auto mb-3 h-12 w-12 text-slate-200" />
-            <p className="font-semibold text-slate-700">Belum ada ekstrakurikuler aktif</p>
-            <p className="mt-1 text-sm text-slate-500">
-              Tambahkan data ekstrakurikuler di tabel <code>extracurriculars</code> terlebih dahulu.
-            </p>
+            {role === 'pembina' ? (
+              <>
+                <p className="font-semibold text-slate-700">Akun belum ditautkan ke ekskul</p>
+                <p className="mt-1 text-sm text-slate-500">
+                  Akun pembina ini belum memiliki ekstrakurikuler. Silakan hubungi admin untuk menautkan
+                  ekskul di menu <code>Akun Pembina</code>.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold text-slate-700">Belum ada ekstrakurikuler aktif</p>
+                <p className="mt-1 text-sm text-slate-500">
+                  Tambahkan data ekstrakurikuler di tabel <code>extracurriculars</code> terlebih dahulu.
+                </p>
+              </>
+            )}
           </div>
         ) : (
           <>

@@ -206,12 +206,13 @@ export interface EkskulGallery {
   created_at: string
 }
 
-export type UserRole = 'admin' | 'operator_tu' | 'public'
+export type UserRole = 'admin' | 'operator_tu' | 'public' | 'pembina'
 export interface UserProfile {
   id: string
   full_name?: string | null
   nip?: string | null
   role: UserRole
+  ekskul_id?: string | null
   avatar_url?: string | null
   created_at: string
   updated_at: string
