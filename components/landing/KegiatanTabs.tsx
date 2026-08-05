@@ -165,6 +165,12 @@ const fallbackEkskul: EkskulItem[] = [
     desc: 'Program menghafal Al-Qur\u2019an dan pembinaan keagamaan.',
     pembina: 'Yopi Ahmad Faisal',
   },
+  {
+    name: 'PMR',
+    image: '/ekskul/pmr.svg',
+    desc: 'Wadah pembinaan dan pengembangan anggota remaja PMR dalam bidang kemanusiaan, kesehatan, kesiapsiagaan bencana, dan pertolongan pertama di lingkungan sekolah maupun masyarakat.',
+    pembina: 'Dani Ahmad Fauzi, S.Pd & Ela Nurlaelasari, S.Pd',
+  },
 ]
 
 interface P5Item {
@@ -238,12 +244,15 @@ export default function KegiatanTabs() {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setEkskul(
-            (data as Kegiatan[]).map((k, i) => ({
-              name: k.title,
-              image: k.image_url || fallbackEkskul[i]?.image || '/kegiatan/ekskul-pramuka.svg',
-              desc: k.description ?? '',
-              pembina: k.pembina ?? '',
-            }))
+            (data as Kegiatan[]).map((k) => {
+              const fb = fallbackEkskul.find((f) => f.name === k.title)
+              return {
+                name: k.title,
+                image: k.image_url || fb?.image || '/kegiatan/ekskul-pramuka.svg',
+                desc: k.description ?? fb?.desc ?? '',
+                pembina: k.pembina ?? fb?.pembina ?? '',
+              }
+            })
           )
         }
       })
