@@ -10,8 +10,10 @@ interface ImageUploaderProps {
   value?: string | null
   /** Dipanggil dengan URL baru saat unggah sukses, atau null saat dihapus */
   onChange: (url: string | null) => void
-  /** Sub-folder di bucket `school-media` (mis. 'berita', 'kegiatan', 'galeri') */
+  /** Sub-folder di bucket (mis. 'berita', 'kegiatan', 'galeri') */
   folder?: string
+  /** Nama bucket storage (default 'school-media'; untuk ekskul pakai 'ekskul-media') */
+  bucket?: string
   label?: string
   helpText?: string
   maxSizeMB?: number
@@ -21,6 +23,7 @@ export default function ImageUploader({
   value,
   onChange,
   folder = 'umum',
+  bucket = 'school-media',
   label = 'Gambar',
   helpText = 'JPG, PNG, WebP — maks. 5MB',
   maxSizeMB = 5,
@@ -44,7 +47,7 @@ export default function ImageUploader({
     setUploading(true)
     setError(null)
     try {
-      const url = await uploadImage(file, folder)
+      const url = await uploadImage(file, folder, bucket)
       onChange(url)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Gagal mengunggah gambar.')
