@@ -56,7 +56,7 @@ const fallbackSlides: Slide[] = [
  * - Path relatif lokal (mis. "/images/hero1.jpg" atau "/kegiatan/...svg") →
  *   dipakai apa adanya (Next.js otomatis mencarinya di folder `public/`).
  */
-function resolveImageSrc(src: string): string {
+function resolveImageSrc(src?: string): string {
   const value = (src || '').trim()
   if (!value) return '/kegiatan/ekskul-pramuka.svg'
   if (/^https?:\/\//i.test(value)) return value
@@ -84,17 +84,19 @@ export default function HeroSlider() {
       try {
         const { data, error } = await supabase
           .from('hero_slides')
-          .select('*')
+          .select('id, title, image_url')
           .eq('is_active', true)
           .order('order_index', { ascending: true })
           .order('created_at', { ascending: true })
         if (!active) return
         if (!error && data && data.length > 0) {
-          const list = (data as { id: string; title?: string; image_url: string }[]).map((s) => ({
-            src: resolveImageSrc(s.image_url),
-            alt: s.title || 'Banner SMP Negeri 1 Wanayasa',
-            caption: s.title || 'SMP Negeri 1 Wanayasa',
-          }))
+          const list = (data as { id: string; title?: string; image_url?: string }[])
+            .map((s) => ({
+              src: resolveImageSrc(s.image_url),
+              alt: s.title || 'Banner SMP Negeri 1 Wanayasa',
+              caption: s.title || 'SMP Negeri 1 Wanayasa',
+            }))
+            .filter((s) => !!s.src)
           setSlides(list.length > 0 ? list : fallbackSlides)
         }
       } catch {
@@ -155,6 +157,7 @@ export default function HeroSlider() {
                     alt={slide.alt}
                     fill
                     priority
+                    unoptimized
                     sizes="100vw"
                     className="object-cover"
                     onError={(e) => {
@@ -171,8 +174,8 @@ export default function HeroSlider() {
         </Carousel>
       </div>
 
-      {/* Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-950/90 via-brand-900/70 to-brand-700/40" />
+      {/* Overlays — cukup gelap untuk kontras teks, namun foto tetap terlihat */}
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-950/80 via-brand-900/60 to-brand-700/30" />
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-50/90 to-transparent" />
 
       {/* Foreground Content */}
