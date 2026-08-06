@@ -14,6 +14,7 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 
 interface Slide {
   src: string
@@ -21,7 +22,7 @@ interface Slide {
   caption: string
 }
 
-const slides: Slide[] = [
+const fallbackSlides: Slide[] = [
   {
     src: '/kegiatan/upacara-bendera.svg',
     alt: 'Upacara bendera di halaman sekolah SMPN 1 Wanayasa',
@@ -59,6 +60,40 @@ export default function HeroSlider() {
   const [api, setApi] = React.useState<CarouselApi>()
   const [current, setCurrent] = React.useState(0)
   const [paused, setPaused] = React.useState(false)
+  const [slides, setSlides] = React.useState<Slide[]>(fallbackSlides)
+
+  // Muat slide dari Supabase (hero_slides) — fallback ke data statis lokal
+  React.useEffect(() => {
+    let active = true
+
+    const load = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('hero_slides')
+          .select('*')
+          .eq('is_active', true)
+          .order('order_index', { ascending: true })
+          .order('created_at', { ascending: true })
+        if (!active) return
+        if (!error && data && data.length > 0) {
+          const list = (data as { id: string; title?: string; image_url: string }[]).map((s) => ({
+            src: s.image_url,
+            alt: s.title || 'Banner SMP Negeri 1 Wanayasa',
+            caption: s.title || 'SMP Negeri 1 Wanayasa',
+          }))
+          setSlides(list)
+        }
+      } catch {
+        // Abaikan — fallback statis tetap digunakan
+      }
+    }
+
+    load()
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   React.useEffect(() => {
     if (!api) return

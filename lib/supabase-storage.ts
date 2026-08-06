@@ -45,6 +45,14 @@ export async function uploadEkskulImage(file: File, folder = 'galeri'): Promise<
 }
 
 /**
+ * Unggah gambar slider/banner hero utama ke bucket `hero-banners`.
+ * Mengembalikan Public URL yang siap disimpan ke `hero_slides.image_url`.
+ */
+export async function uploadHeroImage(file: File, folder = 'slides'): Promise<string> {
+  return uploadImage(file, folder, 'hero-banners')
+}
+
+/**
  * Hapus file dari Storage berdasarkan Public URL-nya.
  * Bucket & path diambil otomatis dari URL, sehingga aman untuk
  * file lama (bucket `berita-images`) maupun baru (`school-media`).

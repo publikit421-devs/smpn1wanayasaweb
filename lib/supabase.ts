@@ -157,8 +157,30 @@ export interface GalleryItem {
   created_at: string
 }
 
-// ====== Ekstrakurikuler Types ======
+// ====== Hero Slider Types ======
 
+export interface HeroSlide {
+  id: string
+  title?: string
+  image_url: string
+  order_index: number
+  is_active: boolean
+  created_at: string
+}
+
+export async function getHeroSlides(): Promise<HeroSlide[]> {
+  const { data, error } = await supabase
+    .from('hero_slides')
+    .select('*')
+    .eq('is_active', true)
+    .order('order_index', { ascending: true })
+    .order('created_at', { ascending: true })
+
+  if (error) throw error
+  return (data as HeroSlide[]) || []
+}
+
+// ====== Ekstrakurikuler Types ======
 export interface Extracurricular {
   id: string
   slug: string
