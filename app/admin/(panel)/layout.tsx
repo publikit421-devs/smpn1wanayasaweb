@@ -67,7 +67,7 @@ export default function AdminPanelLayout({
     })
   }, [router])
 
-  const handleLogout = async () => {
+  const handleAdminLogout = async () => {
     await supabase.auth.signOut()
     router.push('/admin/login')
     router.refresh()
@@ -150,7 +150,7 @@ export default function AdminPanelLayout({
         <div className="p-4 border-t border-slate-700/60">
           <button
             id="admin-logout-btn"
-            onClick={handleLogout}
+            onClick={handleAdminLogout}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-500 text-slate-400 hover:text-white hover:bg-red-500/20 transition-all"
           >
             <LogOut className="w-4 h-4" />
@@ -177,9 +177,19 @@ export default function AdminPanelLayout({
               <p className="text-xs text-slate-500">Panel manajemen SMPN 1 Wanayasa</p>
             </div>
           </div>
-          <Link href="/" className="text-xs text-brand-600 hover:text-brand-800 font-600">
-            Lihat Portal →
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="text-xs text-brand-600 hover:text-brand-800 font-600">
+              Lihat Portal →
+            </Link>
+            <button
+              id="admin-topbar-logout-btn"
+              onClick={handleAdminLogout}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-600 text-red-600 transition-colors hover:bg-red-100"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Keluar
+            </button>
+          </div>
         </header>
 
         <main className="flex-1 p-6">{children}</main>

@@ -50,6 +50,20 @@ const fallbackSlides: Slide[] = [
   },
 ]
 
+/**
+ * Resolusi URL gambar slide:
+ * - URL absolut (http/https) → dipakai langsung (Supabase Storage publicUrl).
+ * - Path relatif lokal (mis. "/images/hero1.jpg" atau "/kegiatan/...svg") →
+ *   dipakai apa adanya (Next.js otomatis mencarinya di folder `public/`).
+ */
+function resolveImageSrc(src: string): string {
+  const value = (src || '').trim()
+  if (!value) return '/kegiatan/ekskul-pramuka.svg'
+  if (/^https?:\/\//i.test(value)) return value
+  if (value.startsWith('~') || value.startsWith('data:')) return value
+  return value
+}
+
 const heroStats = [
   { icon: Users, value: '500+', label: 'Siswa Aktif' },
   { icon: School, value: '24', label: 'Rombel' },
@@ -77,11 +91,11 @@ export default function HeroSlider() {
         if (!active) return
         if (!error && data && data.length > 0) {
           const list = (data as { id: string; title?: string; image_url: string }[]).map((s) => ({
-            src: s.image_url,
+            src: resolveImageSrc(s.image_url),
             alt: s.title || 'Banner SMP Negeri 1 Wanayasa',
             caption: s.title || 'SMP Negeri 1 Wanayasa',
           }))
-          setSlides(list)
+          setSlides(list.length > 0 ? list : fallbackSlides)
         }
       } catch {
         // Abaikan — fallback statis tetap digunakan
@@ -133,8 +147,8 @@ export default function HeroSlider() {
           opts={{ loop: true, align: 'start' }}
         >
           <CarouselContent className="-ml-0 h-full">
-            {slides.map((slide) => (
-              <CarouselItem key={slide.src} className="pl-0">
+            {slides.map((slide, i) => (
+              <CarouselItem key={`${slide.src}-${i}`} className="pl-0">
                 <div className="relative h-full w-full">
                   <Image
                     src={slide.src}
@@ -143,6 +157,12 @@ export default function HeroSlider() {
                     priority
                     sizes="100vw"
                     className="object-cover"
+                    onError={(e) => {
+                      const img = e.currentTarget
+                      if (img.src !== window.location.origin + fallbackSlides[0].src) {
+                        img.src = fallbackSlides[0].src
+                      }
+                    }}
                   />
                 </div>
               </CarouselItem>
