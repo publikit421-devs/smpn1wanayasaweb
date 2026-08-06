@@ -17,6 +17,7 @@ import {
   Clock,
   X,
   School,
+  LogOut,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -346,6 +347,12 @@ export default function PembinaDashboard() {
 
   const selectedName = selected?.name || 'Ekstrakurikuler'
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/pembina/login')
+    router.refresh()
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -386,6 +393,14 @@ export default function PembinaDashboard() {
                 </span>
               )}
             </div>
+            <button
+              id="pembina-logout-btn"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+            >
+              <LogOut className="h-4 w-4" />
+              Keluar
+            </button>
           </div>
         </div>
       </header>
