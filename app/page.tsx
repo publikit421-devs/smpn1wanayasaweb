@@ -1,5 +1,6 @@
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import SmartIntroLoader from '@/components/SmartIntroLoader'
 import HeroSlider from '@/components/landing/HeroSlider'
 import StatsSection from '@/components/landing/StatsSection'
 import StudentStatsSection from '@/components/landing/StudentStatsSection'
@@ -15,6 +16,7 @@ import ContactSection from '@/components/home/ContactSection'
 export default function HomePage() {
   return (
     <>
+      <SmartIntroLoader />
       <Header />
       <main>
         <HeroSlider />
