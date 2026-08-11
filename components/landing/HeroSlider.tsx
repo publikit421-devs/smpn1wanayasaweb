@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ChevronLeft, ChevronRight, GraduationCap, School, Users } from 'lucide-react'
 
@@ -151,23 +150,14 @@ export default function HeroSlider() {
           <CarouselContent className="-ml-0 h-full">
             {slides.map((slide, i) => (
               <CarouselItem key={`${slide.src}-${i}`} className="pl-0">
-                <div className="relative h-full w-full">
-                  <Image
-                    src={slide.src}
-                    alt={slide.alt}
-                    fill
-                    priority
-                    unoptimized
-                    sizes="100vw"
-                    className="object-cover"
-                    onError={(e) => {
-                      const img = e.currentTarget
-                      if (img.src !== window.location.origin + fallbackSlides[0].src) {
-                        img.src = fallbackSlides[0].src
-                      }
-                    }}
-                  />
-                </div>
+                {/* Background Dirender via CSS background-image — andal untuk
+                    URL publik Supabase Storage maupun path lokal di public/. */}
+                <div
+                  role="img"
+                  aria-label={slide.alt}
+                  className="relative h-full w-full bg-brand-900 bg-cover bg-center"
+                  style={{ backgroundImage: `url("${slide.src}")` }}
+                />
               </CarouselItem>
             ))}
           </CarouselContent>
