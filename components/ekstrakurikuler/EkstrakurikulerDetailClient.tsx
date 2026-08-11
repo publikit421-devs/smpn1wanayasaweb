@@ -174,6 +174,7 @@ function GalleryModal({
           src={current.image_url}
           alt={current.caption || current.title || `Foto kegiatan ${selectedIndex + 1}`}
           fill
+          unoptimized
           className="object-contain"
           sizes="90vw"
           priority
@@ -245,6 +246,7 @@ function GalleryGrid({ galleries }: { galleries: EkskulGallery[] }) {
               src={gallery.image_url}
               alt={gallery.caption || gallery.title || `Foto kegiatan ${i + 1}`}
               fill
+              unoptimized
               className="object-cover transition-transform duration-500 group-hover:scale-110"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />

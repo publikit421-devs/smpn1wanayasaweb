@@ -14,6 +14,9 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+// Galeri/dataset dikelola pembina secara dinamis → regenerasi berkala (ISR).
+export const revalidate = 60
+
 function toExtracurricular(slug: string): Extracurricular | null {
   const local = getLocalEkskul(slug)
   if (!local) return null

@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils'
 import { deleteImage } from '@/lib/supabase-storage'
 import { syncExtracurricularsToSupabase } from '@/lib/ekskul-data'
 import ImageUploader from '@/components/admin/ImageUploader'
+import { revalidateEkskul } from './actions'
 import type {
   Extracurricular,
   EkskulSchedule,
@@ -331,6 +332,7 @@ export default function PembinaDashboard() {
       setShowGalleryForm(false)
       refreshAll()
       showMessage('Foto berhasil ditambahkan ke galeri.')
+      if (selected?.slug) await revalidateEkskul(selected.slug)
     } catch {
       showError('Gagal menyimpan foto galeri.')
     } finally {
@@ -343,6 +345,7 @@ export default function PembinaDashboard() {
     if (g.image_url) await deleteImage(g.image_url)
     await supabase.from('ekskul_galleries').delete().eq('id', g.id)
     refreshAll()
+    if (selected?.slug) await revalidateEkskul(selected.slug)
   }
 
   const selectedName = selected?.name || 'Ekstrakurikuler'
