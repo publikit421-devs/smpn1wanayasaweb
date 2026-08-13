@@ -11,8 +11,8 @@ export const metadata: Metadata = {
     default: 'SMP Negeri 1 Wanayasa — Portal Layanan Publik',
   },
   description:
-    'Portal resmi Sistem Informasi dan Layanan Publik SMP Negeri 1 Wanayasa, Banjarnegara. Akses pengumuman, berita, dan 6 layanan publik secara online.',
-  keywords: ['SMPN 1 Wanayasa', 'SMP Negeri 1 Wanayasa', 'Portal Layanan', 'Banjarnegara'],
+    'Portal resmi Sistem Informasi dan Layanan Publik SMP Negeri 1 Wanayasa, Purwakarta, Jawa Barat. Akses pengumuman, berita, dan 6 layanan publik secara online.',
+  keywords: ['SMPN 1 Wanayasa', 'SMP Negeri 1 Wanayasa', 'Portal Layanan', 'Purwakarta', 'Jawa Barat'],
   authors: [{ name: 'SMP Negeri 1 Wanayasa' }],
   icons: {
     icon: '/icon.png',

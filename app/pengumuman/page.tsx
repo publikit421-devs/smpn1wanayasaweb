@@ -45,7 +45,7 @@ const sampleAnnouncements: Announcement[] = [
     id: '3',
     title: 'Juara 1 Olimpiade Matematika Tingkat Kabupaten',
     slug: 'juara-olimpiade-2026',
-    content: 'Selamat kepada perwakilan siswa kelas IX yang telah meraih Juara 1 Olimpiade Matematika Kabupaten Banjarnegara 2026! Prestasi ini membuktikan dedikasi siswa dan guru pembimbing dalam memajukan akademik sekolah.',
+    content: 'Selamat kepada perwakilan siswa kelas IX yang telah meraih Juara 1 Olimpiade Matematika Kabupaten Purwakarta 2026! Prestasi ini membuktikan dedikasi siswa dan guru pembimbing dalam memajukan akademik sekolah.',
     category: 'berita',
     is_pinned: false,
     is_published: true,

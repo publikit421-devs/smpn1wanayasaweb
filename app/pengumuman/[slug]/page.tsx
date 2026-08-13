@@ -43,7 +43,7 @@ const sampleAnnouncements: Announcement[] = [
     id: '3',
     title: 'Juara 1 Olimpiade Matematika Tingkat Kabupaten',
     slug: 'juara-olimpiade-2026',
-    content: 'Selamat kepada perwakilan siswa kelas IX yang telah meraih Juara 1 Olimpiade Matematika Kabupaten Banjarnegara 2026! Prestasi ini membuktikan dedikasi siswa dan guru pembimbing dalam memajukan akademik sekolah.\n\nPerlombaan ini diikuti oleh lebih dari 50 SMP/MTs se-Kabupaten Banjarnegara. Kami berharap prestasi gemilang ini dapat menjadi inspirasi bagi siswa-siswi lainnya di SMP Negeri 1 Wanayasa untuk terus berprestasi, baik dalam bidang akademik maupun non-akademik.',
+    content: 'Selamat kepada perwakilan siswa kelas IX yang telah meraih Juara 1 Olimpiade Matematika Kabupaten Purwakarta 2026! Prestasi ini membuktikan dedikasi siswa dan guru pembimbing dalam memajukan akademik sekolah.\n\nPerlombaan ini diikuti oleh lebih dari 50 SMP/MTs se-Kabupaten Purwakarta. Kami berharap prestasi gemilang ini dapat menjadi inspirasi bagi siswa-siswi lainnya di SMP Negeri 1 Wanayasa untuk terus berprestasi, baik dalam bidang akademik maupun non-akademik.',
     category: 'berita',
     is_pinned: false,
     is_published: true,

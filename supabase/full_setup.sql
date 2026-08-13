@@ -169,7 +169,7 @@ INSERT INTO announcements (title, slug, content, category, is_pinned) VALUES
   (
     'Prestasi Siswa: Juara 1 Olimpiade Matematika Tingkat Kabupaten',
     'juara-olimpiade-matematika-2026',
-    'Selamat kepada siswa kelas IX atas pencapaian luar biasa meraih Juara 1 dalam Olimpiade Matematika Tingkat Kabupaten Banjarnegara 2026. Membanggakan!',
+    'Selamat kepada siswa kelas IX atas pencapaian luar biasa meraih Juara 1 dalam Olimpiade Matematika Tingkat Kabupaten Purwakarta 2026. Membanggakan!',
     'berita',
     FALSE
   )
